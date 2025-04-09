@@ -1,5 +1,4 @@
 ---
-
 # https://docs.ansible.com/ansible/devel/reference_appendices/faq.html#when-is-it-unsafe-to-bulk-set-task-arguments-from-a-variable
 #
 # This should be safe since we use a lookup which renders a template, rather than
@@ -23,7 +22,7 @@
   register: _django_app_docker_container_info
 
 - name: Determine the replicas
-  set_fact:
+  ansible.builtin.set_fact:
     _django_app_docker_replicas: "{{ lookup('template', 'replicas.yml.j2') | from_yaml }}"
 
 - name: "Run the django backend containers"
@@ -38,7 +37,7 @@
     _django_app_docker_port: "{{ _django_app_docker_freeports.stdout_lines[0] }}"
 
 - name: Determine the celery worker replicas
-  set_fact:
+  ansible.builtin.set_fact:
     _django_app_docker_celery_worker_replicas: "{{ lookup('template', 'celery-replicas.yml.j2') | from_yaml }}"
   when: django_app_docker_use_celery
 
@@ -61,7 +60,7 @@
   register: _django_app_docker_container_info_flower
 
 - name: When no flower container found, recheck free ports
-  import_tasks: freeports.yml
+  ansible.builtin.import_tasks: freeports.yml
   when: not _django_app_docker_container_info_flower.exists
 
 - name: "Run the celery flower container"

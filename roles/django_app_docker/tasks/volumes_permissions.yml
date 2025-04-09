@@ -9,5 +9,5 @@
     group: "{{ item.item.group | default(django_app_docker_app_user) }}"
     recurse: "{{ item.item.recurse | default(False) }}"
     mode: "{{ item.item.perms | default('u=rwx,g=rx,o-rwx') }}"
-  when: item.item.hostPath is not defined or not item.item.hostPath  # only create docker volumes if we're not bind mounting
+  when: item.item.hostPath is not defined or not item.item.hostPath # only create docker volumes if we're not bind mounting
   loop: "{{ _django_app_docker_volumes.results }}"

@@ -22,7 +22,7 @@ app_db_login_db: "{{ app_db_login_user }}"
 
 app_db_provision_user: true
 app_db_provision_database: true
-app_db_become_user: null
+app_db_become_user:
 
 app_db_extra_users: []
 # Example:

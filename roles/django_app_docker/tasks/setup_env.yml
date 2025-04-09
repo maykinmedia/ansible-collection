@@ -1,5 +1,4 @@
 ---
-
 # Configure the environment for the app on the host machine
 
 - name: Create the application group '{{ django_app_docker_name_prefix }}'
@@ -16,8 +15,8 @@
   register: _django_app_docker_app_user
 
 - name: Template out the .env file
-  template:
-    src: "{{ django_app_docker_env_template|default('env.j2') }}"
+  ansible.builtin.template:
+    src: "{{ django_app_docker_env_template | default('env.j2') }}"
     dest: "{{ _django_app_docker_app_user.home }}/dotenv"
     owner: "{{ django_app_docker_app_user }}"
     group: "{{ django_app_docker_app_user }}"

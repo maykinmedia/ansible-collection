@@ -1,5 +1,4 @@
 ---
-
 # Installs the required dependencies
 
 - name: Install dependencies

@@ -1,23 +1,17 @@
 ---
-
 # Preparation for Docker environment
-- import_tasks: derive_facts.yml
-- import_tasks: setup_env.yml
-
-# Docker infra provisioning
-- import_tasks: dependencies.yml
+- ansible.builtin.import_tasks: derive_facts.yml
+- ansible.builtin.import_tasks: setup_env.yml
+- ansible.builtin.import_tasks: dependencies.yml
   when: django_app_docker_dependencies | length > 0
-  
-- import_tasks: volumes.yml
-- import_tasks: network.yml
 
-- import_tasks: freeports.yml
-- import_tasks: containers.yml
-
-- import_tasks: volumes_permissions.yml
-
-- import_tasks: setup_configuration.yml
+- ansible.builtin.import_tasks: volumes.yml
+- ansible.builtin.import_tasks: network.yml
+- ansible.builtin.import_tasks: freeports.yml
+- ansible.builtin.import_tasks: containers.yml
+- ansible.builtin.import_tasks: volumes_permissions.yml
+- ansible.builtin.import_tasks: setup_configuration.yml
   when: django_app_docker_config_enable
 
 # Cleanup
-- import_tasks: unset_facts.yml
+- ansible.builtin.import_tasks: unset_facts.yml

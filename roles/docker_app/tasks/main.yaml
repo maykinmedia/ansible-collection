@@ -1,4 +1,4 @@
-
+---
 - name: Derive docker_app_image variable
   ansible.builtin.set_fact:
     docker_app_image: "{{ docker_app_image_registry }}/{{ docker_app_image_name }}:{{ docker_app_image_version }}"
@@ -18,7 +18,7 @@
   register: _docker_app_user
 
 - name: Template out the .env file
-  template:
+  ansible.builtin.template:
     src: "{{ docker_app_env_template }}"
     dest: "{{ _docker_app_user.home }}/dotenv"
     owner: "{{ docker_app_user }}"
@@ -43,19 +43,19 @@
 - name: Copy free ports script to host
   ansible.builtin.copy:
     content: |
-        #!/usr/bin/python3
-        import socket
-        for p in range({{ docker_app_port_range.start }},{{ docker_app_port_range.end }}):
-            import socket
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            try:
-              s.bind(("",p))
-            except:
-                pass
-            port = s.getsockname()[1]
-            s.close()
-            if port != 0:
-              print(p)
+      #!/usr/bin/python3
+      import socket
+      for p in range({{ docker_app_port_range.start }},{{ docker_app_port_range.end }}):
+          import socket
+          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+          try:
+            s.bind(("",p))
+          except:
+              pass
+          port = s.getsockname()[1]
+          s.close()
+          if port != 0:
+            print(p)
     dest: /tmp/freeports.py
     mode: "0700"
 
@@ -83,32 +83,33 @@
 # For each container, either take the port on which it is running or take one of the free ports
 - name: Make list of ports for the containers
   ansible.builtin.set_fact:
-    _app_container_replica_ports: "{{ _app_container_replica_ports | default([]) + [_docker_app_container_info.results[item].exists | ternary(_docker_app_container_info.results[item].container.HostConfig.PortBindings[[app_port, 'tcp'] | join('/')][0].HostPort, _docker_freeports.stdout_lines[item])] }}"
+    _app_container_replica_ports: "{{ _app_container_replica_ports | default([]) + [_docker_app_container_info.results[item].exists | ternary(_docker_app_container_info.results[item].container.HostConfig.PortBindings[[app_port,
+      'tcp'] | join('/')][0].HostPort, _docker_freeports.stdout_lines[item])] }}"
   loop: "{{ range(docker_app_replicas) | list }}"
   loop_control:
     loop_var: docker_app_counter
 
 - name: Run the app containers
-  community.docker.docker_container: 
+  community.docker.docker_container:
     container_default_behavior: no_defaults
-    name: "{{ _app_container_replicas_names[loop_var: docker_app_counter] }}"
+    name: "{{ _app_container_replicas_names[loop_var:docker_app_counter] }}"
     image: "{{ docker_app_image | mandatory }}"
-    hostname: "{{ _app_container_replicas_names[loop_var: docker_app_counter] }}"
+    hostname: "{{ _app_container_replicas_names[loop_var:docker_app_counter] }}"
     state: "{{ docker_app_state }}"
-    pull: yes  # always pull
+    pull: true # always pull
     restart: "{{ _docker_env_file.changed }}"
     restart_policy: always
     networks:
-    - name: "{{ docker_app_name_prefix }}"
+      - name: "{{ docker_app_name_prefix }}"
     networks_cli_compatible: true
 
     healthcheck: "{{ docker_app_healthcheck | default({}) }}"
 
-    privileged: no
+    privileged: false
     log_driver: json-file
     log_options:
       max-size: 10m
-      max-file: '10'
+      max-file: "10"
 
     env_file: "{{ _docker_app_user.home }}/dotenv"
 
@@ -116,10 +117,10 @@
     memory_swap: "{{ docker_app_swap_memory_limit }}"
     cpus: "{{ docker_app_cpu_limit }}"
 
-    volumes: "{{ docker_app_volumes_mounts|default([]) }}"
+    volumes: "{{ docker_app_volumes_mounts | default([]) }}"
 
     published_ports:
-      - "127.0.0.1:{{ _app_container_replica_ports[loop_var: docker_app_counter] }}:{{ docker_app_application_port }}"
+      - "127.0.0.1:{{ _app_container_replica_ports[loop_var:docker_app_counter] }}:{{ docker_app_application_port }}"
     comparisons:
       env: strict
       volumes: strict
@@ -131,6 +132,5 @@
 
 - name: Clear docker image variable
   ansible.builtin.set_fact:
-    docker_app_image: null
+    docker_app_image:
   when: docker_app_image is defined
-

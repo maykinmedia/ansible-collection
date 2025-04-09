@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: Maykin Media
   description: Provision the (PostgreSQL) app database, including the db user
@@ -7,7 +8,7 @@ galaxy_info:
 
   license: EUPL-1.2
 
-  min_ansible_version: '2.9'
+  min_ansible_version: "2.9"
 
   # If this a Container Enabled role, provide the minimum Ansible Container version.
   # min_ansible_container_version:

@@ -1,12 +1,11 @@
 ---
-
 - name: Provision the volumes/persistent storage
   community.docker.docker_volume:
     name: "{{ item.name | mandatory }}"
     labels:
       maykinmedia.commonground.django_app_docker/mountpoint: "{{ item.mount | mandatory }}"
       maykinmedia.commonground.django_app_docker/mode: "{{ item.mode | mandatory }}"
-  when: item.hostPath is not defined or not item.hostPath  # only create docker volumes if we're not bind mounting
+  when: item.hostPath is not defined or not item.hostPath # only create docker volumes if we're not bind mounting
   loop: "{{ django_app_docker_volumes }}"
   register: _django_app_docker_volumes
   notify:

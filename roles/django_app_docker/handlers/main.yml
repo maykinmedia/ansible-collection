@@ -1,7 +1,6 @@
 ---
-
-- name: print volume mountpoints
-  debug:
+- name: Print volume mountpoints
+  ansible.builtin.debug:
     msg: "Volume '{{ item.volume.Name }}' (mounted at {{ item.volume.Mountpoint }}) created"
   loop: "{{ _django_app_docker_volumes.results }}"
   when: item.changed is true
