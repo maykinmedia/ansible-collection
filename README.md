@@ -28,6 +28,4 @@ The architecture is so that:
 3. Which is then exposed via NGINX
 4. Where SSL _can_ be disabled.
 
-## Kubernetes
 
-Work in progress.

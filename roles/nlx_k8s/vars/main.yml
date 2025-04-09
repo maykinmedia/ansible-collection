@@ -1,6 +1,0 @@
----
-
-
-nlx_management_postgres_dsn: "\
-  postgresql://{{ nlx_management_api_db.host }}:{{ nlx_management_api_db.port }}/\
-  {{ nlx_management_api_db.name }}?connect_timeout=2"

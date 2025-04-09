@@ -1,7 +1,0 @@
----
-
-- import_tasks: namespace.yml
-- import_tasks: config.yml
-- import_tasks: inway.yml
-- import_tasks: outway.yml
-- import_tasks: management.yml

@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Secret
-data:
-  tls.crt: "{{ django_app_k8s_tls_secrets.crt|b64encode }}"
-  tls.key: "{{ django_app_k8s_tls_secrets.key|b64encode }}"
-type: kubernetes.io/tls

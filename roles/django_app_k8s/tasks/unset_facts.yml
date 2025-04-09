@@ -1,6 +1,0 @@
----
-
-- name: Clear django_app_k8s_image variable
-  set_fact:
-    django_app_k8s_image: null
-  when: django_app_k8s_unset_image is defined and django_app_k8s_unset_image
