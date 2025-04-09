@@ -1,0 +1,56 @@
+name: Run ansible-lint
+
+# Run this workflow every time a tag is pushed to the repo
+on:
+  push:
+    tags:
+    # The regex for semantic versioning should be (the second here: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string)
+    # - "^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+    - "[0-9]+.[0-9]+.[0-9]+"
+
+
+env:
+
+jobs:
+  check-version:
+    name: Check tag version matches version in galaxy.yml
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Extract version from galaxy.yml
+      run: |
+        echo "galaxy_version=`sed -n 's/^version: \(.*\)/\1/p' < galaxy.yml`" >> "$GITHUB_ENV"
+    - name: Extract tag name
+      run: |
+        echo "tag_version=${GITHUB_REF#refs/*/}" >> "$GITHUB_ENV"
+    - name: Compare version to tag version
+      if: ${{ env.galaxy_version }} != ${{ env.tag_version }}
+      run: |
+        echo "::error ::Version in galaxy.yml does not match the tag version."
+        exit 1
+
+  ansible-lint:
+    name: Ansible lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25.2.1
+
+  build-collection:
+    name: Build collection
+    needs: 
+      - check-version
+      - ansible-lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build tar
+      run: ansible-galaxy collection build -f
+
+    - name: Publish collection
+      env:
+        VERSION: ${{ env.tag_version }}
+      run: ansible-galaxy collection publish maykinmedia-commonground-$VERSION.tar.gz --token ${{ secrets.GALAXY_API_KEY }}"
