@@ -83,8 +83,10 @@
 # For each container, either take the port on which it is running or take one of the free ports
 - name: Make list of ports for the containers
   ansible.builtin.set_fact:
-    _app_container_replica_ports: "{{ _app_container_replica_ports | default([]) + [_docker_app_container_info.results[item].exists | ternary(_docker_app_container_info.results[item].container.HostConfig.PortBindings[[app_port,
-      'tcp'] | join('/')][0].HostPort, _docker_freeports.stdout_lines[item])] }}"
+    _app_container_replica_ports: "{{ _app_container_replica_ports | default([]) +
+       [_docker_app_container_info.results[docker_app_counter].exists |
+       ternary(_docker_app_container_info.results[docker_app_counter].container.HostConfig.PortBindings[[app_port, 'tcp'] | join('/')][0].HostPort,
+       _docker_freeports.stdout_lines[docker_app_counter])] }}"
   loop: "{{ range(docker_app_replicas) | list }}"
   loop_control:
     loop_var: docker_app_counter
