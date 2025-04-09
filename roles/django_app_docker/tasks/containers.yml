@@ -4,66 +4,71 @@
 # This should be safe since we use a lookup which renders a template, rather than
 # accepting host facts.
 
-- name: "Run the cache/broker service ({{ django_app_docker_cache_image }})"
+- name: "containers | Run the cache/broker service ({{ django_app_docker_cache_image }})"
   community.docker.docker_container: "{{ lookup('template', 'redis-container.yml.j2') | from_yaml }}"
 
-- name: "Run the rabbitmq message broker container"
+- name: "containers | Run the rabbitmq message broker container"
   community.docker.docker_container: "{{ lookup('template', 'rabbitmq-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_rabbitmq
 
-- name: "Run the elasticsearch container"
+- name: "containers | Run the elasticsearch container"
   community.docker.docker_container: "{{ lookup('template', 'elasticsearch-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_elasticsearch
 
-- name: Check if django containers already exists and register port
+- name: "containers | Check if django containers already exists and register port"
   community.docker.docker_container_info:
-    name: "{{ django_app_docker_name_prefix }}-{{ item }}"
-  loop: "{{ range(django_app_docker_replicas)|list }}"
+    name: "{{ django_app_docker_name_prefix }}-{{ django_app_docker_counter }}"
+  loop: "{{ range(django_app_docker_replicas) | list }}"
+  loop_control:
+    loop_var: django_app_docker_counter
   register: _django_app_docker_container_info
 
-- name: Determine the replicas
+- name: "containers | Determine the replicas"
   ansible.builtin.set_fact:
     _django_app_docker_replicas: "{{ lookup('template', 'replicas.yml.j2') | from_yaml }}"
 
-- name: "Run the django backend containers"
+- name: "containers | Run the django backend containers"
   community.docker.docker_container: "{{ lookup('template', 'django-container.yml.j2') | from_yaml }}"
   loop: "{{ _django_app_docker_replicas }}"
   loop_control:
+    loop_var: django_app_docker_replica
     pause: "{{ django_app_docker_replicas_loop_pause }}"
   register: backend_ports
 
-- name: Get the port of the first replica before flower overwrites it
+- name: "containers | Get the port of the first replica before flower overwrites it"
   ansible.builtin.set_fact:
     _django_app_docker_port: "{{ _django_app_docker_freeports.stdout_lines[0] }}"
 
-- name: Determine the celery worker replicas
+- name: "containers | Determine the celery worker replicas"
   ansible.builtin.set_fact:
     _django_app_docker_celery_worker_replicas: "{{ lookup('template', 'celery-replicas.yml.j2') | from_yaml }}"
   when: django_app_docker_use_celery
 
-- name: "Run the celery worker containers"
+- name: "containers | Run the celery worker containers"
   community.docker.docker_container: "{{ lookup('template', 'celery-worker-container.yml.j2') | from_yaml }}"
   loop: "{{ _django_app_docker_celery_worker_replicas }}"
+  loop_control:
+    loop_var: django_app_docker_celery_replica
   when: django_app_docker_use_celery
 
-- name: "Run the celery monitor container"
+- name: "containers | Run the celery monitor container"
   community.docker.docker_container: "{{ lookup('template', 'celery-monitor-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_celery_monitor
 
-- name: "Run the celery beat container"
+- name: "containers | Run the celery beat container"
   community.docker.docker_container: "{{ lookup('template', 'celery-beat-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_celery_beat
 
-- name: Check if flower containers already exists and register port if exists
+- name: "containers | Check if flower containers already exists and register port if exists"
   community.docker.docker_container_info:
     name: "{{ django_app_docker_name_prefix }}-flower"
   register: _django_app_docker_container_info_flower
 
-- name: When no flower container found, recheck free ports
+- name: "containers | When no flower container found, recheck free ports"
   ansible.builtin.import_tasks: freeports.yml
   when: not _django_app_docker_container_info_flower.exists
 
-- name: "Run the celery flower container"
+- name: "containers | Run the celery flower container"
   community.docker.docker_container: "{{ lookup('template', 'celery-flower-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_flower
   register: flower_ports

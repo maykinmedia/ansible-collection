@@ -1,15 +1,15 @@
 ---
-- name: Set image identifier from sha256
+- name: derive_facts | Set image identifier from sha256
   ansible.builtin.set_fact:
     __django_app_docker_image_identifier: "@sha256:{{ django_app_docker_sha256 }}"
   when: django_app_docker_sha256 != None
 
-- name: Set image identifier from version
+- name: derive_facts | Set image identifier from version
   ansible.builtin.set_fact:
     __django_app_docker_image_identifier: ":{{ django_app_docker_version }}"
   when: django_app_docker_sha256 == None
 
-- name: Derive django_app_docker_image variable
+- name: derive_facts | Derive django_app_docker_image variable
   ansible.builtin.set_fact:
     django_app_docker_image: "{{ django_app_docker_image_registry }}/{{ django_app_docker_image_name }}{{ __django_app_docker_image_identifier }}"
     django_app_docker_unset_image: true

@@ -1,17 +1,26 @@
 ---
 # Preparation for Docker environment
-- ansible.builtin.import_tasks: derive_facts.yml
-- ansible.builtin.import_tasks: setup_env.yml
-- ansible.builtin.import_tasks: dependencies.yml
+- name: Derive facts
+  ansible.builtin.import_tasks: derive_facts.yml
+- name: Setup environment
+  ansible.builtin.import_tasks: setup_env.yml
+- name: Install dependencies
+  ansible.builtin.import_tasks: dependencies.yml
   when: django_app_docker_dependencies | length > 0
-
-- ansible.builtin.import_tasks: volumes.yml
-- ansible.builtin.import_tasks: network.yml
-- ansible.builtin.import_tasks: freeports.yml
-- ansible.builtin.import_tasks: containers.yml
-- ansible.builtin.import_tasks: volumes_permissions.yml
-- ansible.builtin.import_tasks: setup_configuration.yml
+- name: Provision the volumes/persistent storage
+  ansible.builtin.import_tasks: volumes.yml
+- name: Setup docker network
+  ansible.builtin.import_tasks: network.yml
+- name: Get target machine free ports
+  ansible.builtin.import_tasks: freeports.yml
+- name: Run docker containers
+  ansible.builtin.import_tasks: containers.yml
+- name: Set volume permissions
+  ansible.builtin.import_tasks: volumes_permissions.yml
+- name: Run setup-configuration
+  ansible.builtin.import_tasks: setup_configuration.yml
   when: django_app_docker_config_enable
 
 # Cleanup
-- ansible.builtin.import_tasks: unset_facts.yml
+- name: Clean up facts
+  ansible.builtin.import_tasks: unset_facts.yml

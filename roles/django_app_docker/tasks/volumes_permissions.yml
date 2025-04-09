@@ -1,13 +1,16 @@
 ---
 # Volumes are created as the root user by the Docker daemon. For containers dropping
 # privileges, the owner must be set appropriately
-- name: Set volume permissions
+- name: volumes_permissions | Set volume permissions
   ansible.builtin.file:
-    path: "{{ item.volume.Mountpoint }}"
+    path: "{{ django_app_docker_result.volume.Mountpoint }}"
     state: directory
-    owner: "{{ item.item.owner | default(django_app_docker_app_user) }}"
-    group: "{{ item.item.group | default(django_app_docker_app_user) }}"
-    recurse: "{{ item.item.recurse | default(False) }}"
-    mode: "{{ item.item.perms | default('u=rwx,g=rx,o-rwx') }}"
-  when: item.item.hostPath is not defined or not item.item.hostPath # only create docker volumes if we're not bind mounting
+    owner: "{{ django_app_docker_result.item.owner | default(django_app_docker_app_user) }}"
+    group: "{{ django_app_docker_result.item.group | default(django_app_docker_app_user) }}"
+    recurse: "{{ django_app_docker_result.item.recurse | default(False) }}"
+    mode: "{{ django_app_docker_result.item.perms | default('u=rwx,g=rx,o-rwx') }}"
+  # only create docker volumes if we're not bind mounting
+  when: django_app_docker_result.item.hostPath is not defined or not django_app_docker_result.item.hostPath
   loop: "{{ _django_app_docker_volumes.results }}"
+  loop_control:
+    loop_var: django_app_docker_result

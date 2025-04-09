@@ -1,7 +1,7 @@
 ---
 # Installs the required dependencies
 
-- name: Install dependencies
+- name: "dependencies | Install dependencies"
   ansible.builtin.package:
     name: python3-docker
     state: present

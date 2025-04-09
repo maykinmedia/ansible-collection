@@ -1,5 +1,5 @@
 ---
-- name: Clear django_app_docker_image variable
+- name: unset_facts | Clear django_app_docker_image variable
   ansible.builtin.set_fact:
     django_app_docker_image:
   when: django_app_docker_unset_image is defined and django_app_docker_unset_image
