@@ -1,9 +1,11 @@
 ---
-- name: Checking if we have a strong server-specific DH key
+- name: dhparam | Checking if we have a strong server-specific DH key
   ansible.builtin.stat:
     path: /etc/ssl/certs/dhparam.pem
   register: has_dhparams
 
-- name: Generating strong server-specific DH key (this may take >10 minutes on first run)
+- name: dhparam | Generating strong server-specific DH key (this may take >10 minutes on first run)
   ansible.builtin.command: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+  register: command_output
   when: not has_dhparams.stat.exists
+  changed_when: command_output.rc == 0
