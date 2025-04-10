@@ -1,0 +1,88 @@
+---
+
+# Deploys one container for each requested version of the assets.
+
+- name: Install dependencies
+  ansible.builtin.package:
+    name: python3-docker
+    state: present
+
+- name: Provision the isolated app container network
+  community.docker.docker_network:
+    name: "{{ theme_assets_docker_name_prefix }}"
+    internal: "{{ theme_assets_docker_network_internal }}"
+
+- name: Copy free ports script to host
+  copy:
+    content: |
+        #!/usr/bin/python3
+        import socket
+        for p in range({{ theme_assets_docker_port_range.start }},{{ theme_assets_docker_port_range.end }}):
+            import socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+              s.bind(("",p))
+            except:
+                pass
+            port = s.getsockname()[1]
+            s.close()
+            if port != 0:
+              print(p)
+    dest: /tmp/freeports.py
+    mode: 700
+
+- name: Generate list of free ports
+  command: python3 /tmp/freeports.py
+  register: _docker_freeports
+  no_log: true
+  changed_when: false
+
+- name: Check if app containers already exists
+  community.docker.docker_container_info:
+    name: "{{ theme_assets_docker_name_prefix }}-{{ item }}"
+  loop: "{{ theme_assets_docker_versions | mandatory }}"
+  register: _theme_assets_docker_container_info
+
+# For each container, either take the port on which it is running or take one of the free ports
+- name: Make list of ports for the containers
+  set_fact:
+    _app_container_ports: "{{ _app_container_ports|default([]) + [_theme_assets_docker_container_info.results[index].exists|ternary(_theme_assets_docker_container_info.results[index].container.HostConfig.PortBindings['8080/tcp'][0].HostPort,_docker_freeports.stdout_lines[index])] }}"
+  loop: "{{ theme_assets_docker_versions }}"
+  loop_control:
+    index_var: index
+
+- name: Run the app containers
+  community.docker.docker_container:
+    container_default_behavior: no_defaults
+    name: "{{ theme_assets_docker_name_prefix }}-{{ item }}"
+    image: "{{ theme_assets_docker_image_registry }}/{{ theme_assets_docker_image_name | mandatory }}:{{ item }}"
+    hostname: "{{ theme_assets_docker_name_prefix }}-{{ item }}"
+    state: "{{ theme_assets_docker_state }}"
+    pull: "{{ theme_assets_docker_image_always_pull or item == 'latest' }}"
+    restart: false
+    restart_policy: always
+    networks:
+    - name: "{{ theme_assets_docker_name_prefix }}"
+    networks_cli_compatible: true
+
+    healthcheck: "{{ theme_assets_docker_healthcheck|default({}) }}"
+
+    privileged: no
+    log_driver: json-file
+    log_options:
+      max-size: 10m
+      max-file: '10'
+
+    memory: "{{ theme_assets_docker_memory_limit }}"
+    memory_swap: "{{ theme_assets_docker_swap_memory_limit }}"
+    cpus: "{{ theme_assets_docker_cpus }}"
+
+    published_ports:
+      - "127.0.0.1:{{ _app_container_ports[index] }}:8080"
+    comparisons:
+      env: strict
+      volumes: strict
+  loop: "{{ theme_assets_docker_versions }}"
+  loop_control:
+    index_var: index
+  register: backend_ports
