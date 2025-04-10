@@ -18,11 +18,35 @@
   delay: 5 # Every 5 seconds  
   when: not _django_app_docker_container_info.results[0].exists
 
-- name: Run setup_configuration
+- name: Check if folder with setup configuration exists
+  ansible.builtin.stat:
+    path: "./files/{{ app }}-{{ client }}"
+  register: folder_setup_configuration
+
+- name: Copy the yaml setup configuration file to host server
+  ansible.builtin.copy:
+    src: "./files/{{ app }}-{{ client }}/setup_configuration_{{ target }}.yaml"
+    dest: "/tmp/setup_configuration_{{ target }}_{{ client }}.yaml"  #path on server
+    owner: "1001"
+    group: "1001"
+    mode: u=rw,g=r,o=r
+  when: folder_setup_configuration.stat.exists
+
+- name: Copy the yaml file setup_configuration into the container
+  community.docker.docker_container_copy_into:
+    container: "{{ django_app_docker_name_prefix }}-0"
+    path: "/tmp/setup_configuration_{{ target }}_{{ client }}.yaml" #path on server
+    container_path: "/app/tmp/setup_configuration_{{ target }}_{{ client }}.yaml"
+    owner_id: 1001
+    group_id: 1001
+    mode: 0644
+  when: folder_setup_configuration.stat.exists  
+
+- name: Run setup_configuration yaml file in container
   community.docker.docker_container_exec:
     container: "{{ django_app_docker_name_prefix }}-0"
-    argv:
-      - /app/src/manage.py
-      - "setup_configuration"
-      - "--no-selftest"
-      - "--overwrite"
+    command: "./src/manage.py setup_configuration --yaml-file /app/tmp/setup_configuration_{{ target }}_{{ client }}.yaml"
+  when: folder_setup_configuration.stat.exists
+
+
+
