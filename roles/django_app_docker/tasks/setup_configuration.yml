@@ -1,24 +1,23 @@
 ---
-
-- name: Wait for existing app container te become available
+- name: setup_configuration | Wait for existing app container te become available
   ansible.builtin.uri:
     url: http://127.0.0.1:{{ _django_app_docker_container_info.results[0].container.HostConfig.PortBindings['8000/tcp'][0].HostPort }}
   register: _result
   until: _result.status == django_app_docker_setup_wait_status_code
   retries: 720 # 720 * 5 seconds = 1hour (60*60/5)
-  delay: 5 # Every 5 seconds  
+  delay: 5 # Every 5 seconds
   when: _django_app_docker_container_info.results[0].exists
 
-- name: Wait for new deployed app container te become available
+- name: setup_configuration | Wait for new deployed app container te become available
   ansible.builtin.uri:
     url: http://127.0.0.1:{{ _django_app_docker_port }}
   register: _result
   until: _result.status == django_app_docker_setup_wait_status_code
   retries: 720 # 720 * 5 seconds = 1hour (60*60/5)
-  delay: 5 # Every 5 seconds  
+  delay: 5 # Every 5 seconds
   when: not _django_app_docker_container_info.results[0].exists
 
-- name: Run setup_configuration
+- name: setup_configuration | Run setup_configuration
   community.docker.docker_container_exec:
     container: "{{ django_app_docker_name_prefix }}-0"
     argv:

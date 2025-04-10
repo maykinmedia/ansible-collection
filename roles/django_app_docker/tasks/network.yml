@@ -1,6 +1,5 @@
 ---
-
-- name: Provision the isolated app container network
+- name: network | Provision the isolated app container network
   community.docker.docker_network:
     name: "{{ django_app_docker_name_prefix }}"
     internal: "{{ django_app_docker_network_internal }}"

@@ -1,10 +1,9 @@
 ---
-
 # Prepare the database: ensure the database exists and has the required
 # extensions configured + set up a db user.
 
 - name: Set up the database user
-  postgresql_user:
+  community.postgresql.postgresql_user:
     state: present
     name: "{{ app_db_user | mandatory }}"
     password: "{{ app_db_password | mandatory }}"
@@ -17,7 +16,7 @@
   when: app_db_provision_user
 
 - name: Add application role to superuser
-  postgresql_membership:
+  community.postgresql.postgresql_membership:
     state: present
     group: "{{ app_db_user | mandatory }}"
     target_roles:
@@ -31,21 +30,23 @@
   when: app_db_provision_user and app_db_user != 'postgres'
 
 - name: Set up the extra database users
-  postgresql_user:
+  community.postgresql.postgresql_user:
     state: present
-    name: "{{ item.name | mandatory }}"
-    password: "{{ item.password | mandatory }}"
+    name: "{{ app_db_extra_user.name | mandatory }}"
+    password: "{{ app_db_extra_user.password | mandatory }}"
 
     login_host: "{{ app_db_host }}"
     login_db: "{{ app_db_login_db }}"
     port: "{{ app_db_port }}"
     login_user: "{{ app_db_login_user }}"
     login_password: "{{ app_db_login_password }}"
-  with_items: "{{ app_db_extra_users }}"
+  loop: "{{ app_db_extra_users }}"
+  loop_control:
+    loop_var: app_db_extra_user
   no_log: true
 
 - name: Set up the application database
-  postgresql_db:
+  community.postgresql.postgresql_db:
     name: "{{ app_db_name | mandatory }}"
     owner: "{{ app_db_user | mandatory }}"
     state: present
@@ -57,13 +58,13 @@
   when: app_db_provision_database
 
 - name: Install extra database packages
-  package:
+  ansible.builtin.package:
     name: "{{ app_db_extra_packages }}"
   when: app_db_extra_packages | bool
 
 - name: Enable the required database extensions
-  postgresql_ext:
-    name: "{{ item }}"
+  community.postgresql.postgresql_ext:
+    name: "{{ app_db_extension }}"
     db: "{{ app_db_name | mandatory }}"
     state: present
 
@@ -76,4 +77,7 @@
   # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
   vars:
     ansible_ssh_pipelining: true
-  with_items: "{{ app_db_extensions }}"
+  loop: "{{ app_db_extensions }}"
+  loop_control:
+    loop_var: app_db_extension
+  no_log: true

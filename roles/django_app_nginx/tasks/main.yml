@@ -1,18 +1,18 @@
 ---
-
-- import_tasks: dhparam.yml
+- name: Generate DH key
+  ansible.builtin.import_tasks: dhparam.yml
   when: django_app_nginx_generate_dhparam
 
 - name: Determine the ssl_cert path
-  set_fact:
+  ansible.builtin.set_fact:
     django_app_nginx_ssl_certificate: "/etc/letsencrypt/live/{{ django_app_nginx_domain }}/fullchain.pem"
   when: django_app_nginx_ssl_certificate is not defined and django_app_nginx_letsencrypt_enabled
 
 - name: Determine the ssl_key path
-  set_fact:
+  ansible.builtin.set_fact:
     django_app_nginx_ssl_key: "/etc/letsencrypt/live/{{ django_app_nginx_domain }}/privkey.pem"
   when: django_app_nginx_ssl_key is not defined and django_app_nginx_letsencrypt_enabled
 
 - name: Set the absolute path to the nginx template
-  set_fact:
+  ansible.builtin.set_fact:
     django_app_nginx_template: "{{ role_path }}/templates/app.conf.j2"

@@ -1,2 +1,3 @@
 pip-tools
-ansible-lint[community,yamllint]
+ansible-lint
+ansible

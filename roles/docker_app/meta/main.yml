@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Maykin Media
-  description: Deploy Django web-apps conforming to [default-project](https://bitbucket.org/maykinmedia/default-project)
+  description: Deploy commonground web-apps
   company: Maykin Media
 
   # If the issue tracker for your role is not on github, uncomment the

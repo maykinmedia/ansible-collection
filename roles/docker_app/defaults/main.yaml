@@ -1,6 +1,6 @@
 ---
 # The port exposed on the container
-app_port: 8000
+docker_app_application_port: 8000
 docker_app_image_registry: example-repository
 docker_app_image_name: example-image
 docker_app_image_version: example-tag-name
@@ -19,25 +19,23 @@ docker_app_healthcheck: {}
 docker_app_memory_limit: 0
 docker_app_swap_memory_limit: 0
 docker_app_cpu_limit: 0
-# Number of seconds to wait between deploying replicas, this can be used to prevent downtime. 
+# Number of seconds to wait between deploying replicas, this can be used to prevent downtime.
 docker_app_replicas_loop_pause: 1
 
-# Path to the Docker env template. 
+# Path to the Docker env template.
 # In this template the environment variables needed for the app can be specified.
-docker_env_template: example-docker-env.j2
+docker_app_env_template: example-docker-env.j2
 
-# Volumes to create. 
+# Volumes to create.
 # This is only needed if we are not mounting an existing dir
-create_volumes:
+docker_app_create_volumes:
   enabled: false
   # volumes:
   #   - name: example-volume-name
 
 # Any volumes that should be mounted into the container
-docker_volumes_mounts: []
+docker_app_volumes_mounts: []
 # - /path/on/target/machine/:/path/in/container/
 
 # Set to true to restrict external access to the network
-docker_network_internal: false
-
-
+docker_app_network_internal: false

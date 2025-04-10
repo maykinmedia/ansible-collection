@@ -2,6 +2,8 @@
 env/
 .env
 *.retry
+.python-version
+.ansible
 
 # built collections & local installations
 *.tar.gz
