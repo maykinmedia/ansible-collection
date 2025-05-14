@@ -13,8 +13,17 @@ on:
       - completed
 
 jobs:
+
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo 'The linting workflow passed'
+
   check-version:
     name: Check tag version matches version in galaxy.yml
+    needs:
+      - on-success
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -42,10 +51,6 @@ jobs:
       run: ansible-galaxy collection build -f
 
     - name: Publish collection
-      env:
-        VERSION: ${{ env.tag_version }}
       run: |
-        echo maykinmedia-commonground-$VERSION.tar.gz
-        pwd
-        ls
-        ansible-galaxy collection publish maykinmedia-commonground-$VERSION.tar.gz --token ${{ secrets.GALAXY_API_KEY }}"
+        echo maykinmedia-commonground-${{ env.tag_version }}.tar.gz
+        ansible-galaxy collection publish maykinmedia-commonground-${{ env.tag_version }}.tar.gz --token ${{ secrets.GALAXY_API_KEY }}"
