@@ -34,7 +34,6 @@ jobs:
     name: Build collection
     needs: 
       - check-version
-      - ansible-lint
     runs-on: ubuntu-latest
 
     steps:
