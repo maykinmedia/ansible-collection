@@ -47,4 +47,4 @@ jobs:
     - name: Publish collection
       run: |
         echo maykinmedia-commonground-${{ env.TAG_VERSION }}.tar.gz
-        ansible-galaxy collection publish maykinmedia-commonground-${{ env.TAG_VERSION }}.tar.gz --token ${{ secrets.GALAXY_API_KEY }}"
+        ansible-galaxy collection publish maykinmedia-commonground-${{ env.TAG_VERSION }}.tar.gz --token ${{ secrets.GALAXY_API_KEY }}
