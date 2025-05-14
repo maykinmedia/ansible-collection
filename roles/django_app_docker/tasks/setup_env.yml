@@ -1,23 +1,22 @@
 ---
-
 # Configure the environment for the app on the host machine
 
-- name: Create the application group '{{ django_app_docker_name_prefix }}'
+- name: setup_env | Create the application group '{{ django_app_docker_name_prefix }}'
   ansible.builtin.group:
-    name: "{{ django_app_docker_app_user }}"
+    name: setup_env | "{{ django_app_docker_app_user }}"
 
-- name: Create the application user
+- name: setup_env | Create the application user
   ansible.builtin.user:
-    name: "{{ django_app_docker_app_user }}"
+    name: setup_env | "{{ django_app_docker_app_user }}"
     state: present
     group: "{{ django_app_docker_app_user }}"
     comment: "{{ django_app_docker_app_user }} application user"
     create_home: true
   register: _django_app_docker_app_user
 
-- name: Template out the .env file
-  template:
-    src: "{{ django_app_docker_env_template|default('env.j2') }}"
+- name: setup_env | Template out the .env file
+  ansible.builtin.template:
+    src: "{{ django_app_docker_env_template | default('env.j2') }}"
     dest: "{{ _django_app_docker_app_user.home }}/dotenv"
     owner: "{{ django_app_docker_app_user }}"
     group: "{{ django_app_docker_app_user }}"

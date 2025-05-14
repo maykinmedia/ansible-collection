@@ -4,7 +4,7 @@ django_app_nginx_prefix: "{{ django_app_docker_name_prefix | default('app') }}"
 django_app_nginx_domain: "{{ django_app_docker_domain | default('app.example.com') }}"
 django_app_nginx_upstream_replicas: "{{ _django_app_docker_replicas | default(django_app_nginx_default_upstream_replicas) }}"
 
-django_app_nginx_proto_value: '$scheme'
+django_app_nginx_proto_value: "$scheme"
 
 django_app_nginx_ssl: "{{ django_app_docker_https if django_app_docker_https is defined else True }}"
 django_app_nginx_letsencrypt_enabled: "{[ django_app_nginx_ssl and cerbot_certs is defined }}"
@@ -12,14 +12,18 @@ django_app_nginx_letsencrypt_enabled: "{[ django_app_nginx_ssl and cerbot_certs 
 # django_app_nginx_ssl_key: /path/to/ssl-key.pem
 # SSL Labs testing decreased the rating from A+ to B in January 2020 for servers supporting TLS 1.0 or 1.1
 django_app_nginx_generate_dhparam: false
-django_app_nginx_ssl_protocols: 'TLSv1.2 TLSv1.3'
-django_app_nginx_ssl_prefer_server_ciphers: 'off'
-django_app_nginx_ssl_ciphers: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384'
-django_app_nginx_ssl_hsts: 'max-age=63072000'
+django_app_nginx_ssl_protocols: "TLSv1.2 TLSv1.3"
+django_app_nginx_ssl_prefer_server_ciphers: "off"
+django_app_nginx_ssl_ciphers: >
+  ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:
+  ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:
+  ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:
+  DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+django_app_nginx_ssl_hsts: "max-age=63072000"
 
 django_app_nginx_cache: false
 
 django_app_nginx_extra_directives:
-  - 'client_max_body_size 1M'
+  - "client_max_body_size 1M"
 
 django_app_nginx_include_templates: []
