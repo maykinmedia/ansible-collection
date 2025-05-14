@@ -1,4 +1,4 @@
-name: Run ansible-lint
+name: Publish to Galaxy
 
 # Run this workflow every time a tag is pushed to the repo
 on:
