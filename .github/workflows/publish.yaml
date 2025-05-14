@@ -7,6 +7,10 @@ on:
     # The regex for semantic versioning should be (the second here: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string)
     # - "^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
     - "[0-9]+.[0-9]+.[0-9]+"
+  workflow_run: 
+    workflows: [Run ansible-lint]
+    types:
+      - completed
 
 jobs:
   check-version:
@@ -25,15 +29,6 @@ jobs:
       run: |
         echo "::error ::Version in galaxy.yml does not match the tag version."
         exit 1
-
-  ansible-lint:
-    name: Ansible lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run ansible-lint
-        uses: ansible/ansible-lint@v25.2.1
 
   build-collection:
     name: Build collection
