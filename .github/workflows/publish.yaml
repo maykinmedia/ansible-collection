@@ -41,8 +41,10 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build tar
       run: ansible-galaxy collection build -f
-
+    - name: Extract tag name
+      run: |
+        echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> "$GITHUB_ENV"
     - name: Publish collection
       run: |
-        echo maykinmedia-commonground-$TAG_VERSION.tar.gz
+        echo maykinmedia-commonground-${{ env.TAG_VERSION }}.tar.gz
         ansible-galaxy collection publish maykinmedia-commonground-${{ env.TAG_VERSION }}.tar.gz --token ${{ secrets.GALAXY_API_KEY }}"
