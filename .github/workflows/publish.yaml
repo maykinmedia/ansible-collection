@@ -17,11 +17,14 @@ jobs:
   check-version:
     name: Check tag version matches version in galaxy.yml
     runs-on: ubuntu-latest
+    if: ${{ ! github.ref == 'refs/heads/main' }}
+    
     steps:
     - uses: actions/checkout@v4
     - name: Extract version from galaxy.yml
       run: |
         echo "GALAXY_VERSION=`sed -n 's/^version: \(.*\)/\1/p' < galaxy.yml`" >> "$GITHUB_ENV"
+        echo ${{ github.ref }}
     - name: Extract tag name
       run: |
         echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> "$GITHUB_ENV"
