@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 (2025-05-22)
+
+- Fixed some syntax errors in the `docker_app` role.
+
 ## 2.0.0
 
 - Fixed linter warnings
