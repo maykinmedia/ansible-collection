@@ -75,7 +75,7 @@
 
 - name: Make list of container names
   ansible.builtin.set_fact:
-    _app_container_replicas_names: "{{ _app_container_replicas_names | default([]) + [[docker_app_name_prefix, item] | join('-')] }}"
+    _app_container_replicas_names: "{{ _app_container_replicas_names | default([]) + [[docker_app_name_prefix, docker_app_counter] | join('-')] }}"
   loop: "{{ range(docker_app_replicas) | list }}"
   loop_control:
     loop_var: docker_app_counter
@@ -94,9 +94,9 @@
 - name: Run the app containers
   community.docker.docker_container:
     container_default_behavior: no_defaults
-    name: "{{ _app_container_replicas_names[loop_var:docker_app_counter] }}"
+    name: "{{ _app_container_replicas_names[docker_app_counter] }}"
     image: "{{ docker_app_image | mandatory }}"
-    hostname: "{{ _app_container_replicas_names[loop_var:docker_app_counter] }}"
+    hostname: "{{ _app_container_replicas_names[docker_app_counter] }}"
     state: "{{ docker_app_state }}"
     pull: true # always pull
     restart: "{{ _docker_env_file.changed }}"
@@ -122,7 +122,7 @@
     volumes: "{{ docker_app_volumes_mounts | default([]) }}"
 
     published_ports:
-      - "127.0.0.1:{{ _app_container_replica_ports[loop_var:docker_app_counter] }}:{{ docker_app_application_port }}"
+      - "127.0.0.1:{{ _app_container_replica_ports[docker_app_counter] }}:{{ app_port }}"
     comparisons:
       env: strict
       volumes: strict
