@@ -1,10 +1,10 @@
 ---
 
 container_default_behavior: no_defaults
-name: "{{ item.name }}"
+name: "{{ django_app_docker_celery_replica.name }}"
 image: "{{ django_app_docker_image | mandatory }}"
 command: ["{{ django_app_docker_celery_command }}"]
-hostname: "{{ item.name }}"
+hostname: "{{ django_app_docker_celery_replica.name }}"
 state: "{{ django_app_docker_state }}"
 pull: yes  # always pull
 restart: "{{ _django_app_docker_env_file.changed }}"
@@ -31,7 +31,7 @@ memory_swap: {{ django_app_docker_celery_memory_swap_limit }}
 
 cpus: {{ django_app_docker_celery_cpus }}
 
-stop_timeout: "{{ item.grace_time | default(django_app_docker_celery_workers_default_grace_time) }}"
+stop_timeout: "{{ django_app_docker_celery_replica.grace_time | default(django_app_docker_celery_workers_default_grace_time) }}"
 comparisons:
   env: strict
   volumes: strict
