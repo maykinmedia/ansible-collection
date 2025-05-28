@@ -3,11 +3,11 @@
 
 - name: setup_env | Create the application group '{{ django_app_docker_name_prefix }}'
   ansible.builtin.group:
-    name: setup_env | "{{ django_app_docker_app_user }}"
+    name: "{{ django_app_docker_app_user }}"
 
 - name: setup_env | Create the application user
   ansible.builtin.user:
-    name: setup_env | "{{ django_app_docker_app_user }}"
+    name: "{{ django_app_docker_app_user }}"
     state: present
     group: "{{ django_app_docker_app_user }}"
     comment: "{{ django_app_docker_app_user }} application user"

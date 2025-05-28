@@ -1,9 +1,9 @@
 ---
 
 container_default_behavior: no_defaults
-name: "{{ item.name }}"
+name: "{{ django_app_docker_replica.name }}"
 image: "{{ django_app_docker_image | mandatory }}"
-hostname: "{{ item.name }}"
+hostname: "{{ django_app_docker_replica.name }}"
 state: "{{ django_app_docker_state }}"
 pull: yes  # always pull
 restart: "{{ _django_app_docker_env_file.changed }}"
@@ -31,7 +31,7 @@ memory_swap: {{ django_app_docker_memory_swap_limit }}
 cpus: {{ django_app_docker_cpus }}
 
 published_ports:
-  - "127.0.0.1:{{ item.port }}:8000"
+  - "127.0.0.1:{{ django_app_docker_replica.port }}:8000"
 comparisons:
   env: strict
   volumes: strict

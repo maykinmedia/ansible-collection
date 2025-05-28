@@ -3,8 +3,8 @@ env:
   DB_HOST: "{{ django_app_docker_db_host }}"
   DB_PORT: "{{ django_app_docker_db_port | string }}"
   SECRET_KEY: "{{ django_app_docker_secret_key }}"
-{% if django_app_docker_use_celery and item.queue is defined %}
-  CELERY_WORKER_QUEUE: "{{ item.queue }}"
+{% if django_app_docker_use_celery and django_app_docker_replica.queue is defined %}
+  CELERY_WORKER_QUEUE: "{{ django_app_docker_replica.queue }}"
 {% endif %}
 {% if django_app_docker_use_flower and django_app_docker_flower_url_prefix %}
   FLOWER_URL_PREFIX: "{{ django_app_docker_flower_url_prefix }}"
