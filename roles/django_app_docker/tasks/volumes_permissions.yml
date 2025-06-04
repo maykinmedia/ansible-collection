@@ -5,12 +5,12 @@
   ansible.builtin.file:
     path: "{{ django_app_docker_result.volume.Mountpoint }}"
     state: directory
-    owner: "{{ django_app_docker_result.item.owner | default(django_app_docker_app_user) }}"
-    group: "{{ django_app_docker_result.item.group | default(django_app_docker_app_user) }}"
-    recurse: "{{ django_app_docker_result.item.recurse | default(False) }}"
-    mode: "{{ django_app_docker_result.item.perms | default('u=rwx,g=rx,o-rwx') }}"
+    owner: "{{ django_app_docker_result.django_app_docker_volume.owner | default(django_app_docker_app_user) }}"
+    group: "{{ django_app_docker_result.django_app_docker_volume.group | default(django_app_docker_app_user) }}"
+    recurse: "{{ django_app_docker_result.django_app_docker_volume.recurse | default(False) }}"
+    mode: "{{ django_app_docker_result.django_app_docker_volume.perms | default('u=rwx,g=rx,o-rwx') }}"
   # only create docker volumes if we're not bind mounting
-  when: django_app_docker_result.item.hostPath is not defined or not django_app_docker_result.item.hostPath
+  when: django_app_docker_result.django_app_docker_volume.hostPath is not defined or not django_app_docker_result.django_app_docker_volume.hostPath
   loop: "{{ _django_app_docker_volumes.results }}"
   loop_control:
     loop_var: django_app_docker_result
