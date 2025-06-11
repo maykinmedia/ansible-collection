@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3 (2025-06-11)
+
+- Fixed undefined variable in volumes: in the `volumes_permissions | Set volume permissions` play, the `item` variable was no longer defined, because the `loop_var` in the play that registers `_django_app_docker_volumes` was renamed to `django_app_docker_volume`. This apparently affects the resulting dict.
+
 ## 2.0.2 (2025-05-28)
 
 - Fixed undefined variables in the templates used by the `django_app_docker` role.
