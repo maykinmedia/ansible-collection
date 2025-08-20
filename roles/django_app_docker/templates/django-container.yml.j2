@@ -17,8 +17,8 @@ healthcheck: {{ django_app_docker_healthcheck }}
 privileged: no
 log_driver: json-file
 log_options:
-  max-size: 10m
-  max-file: '10'
+  max-size: "{{ django_app_docker_logfile_size | default('10m') }}"
+  max-file: "{{ django_app_docker_logfile_nr | default('10') }}"
 
 labels: {{ django_app_docker_labels }}
 
