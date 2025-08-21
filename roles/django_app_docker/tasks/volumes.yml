@@ -12,4 +12,4 @@
     loop_var: django_app_docker_volume
   register: _django_app_docker_volumes
   notify:
-    - print volume mountpoints
+    - Print volume mountpoints
