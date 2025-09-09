@@ -1,0 +1,29 @@
+---
+- name: Test role added user
+  hosts: molecule
+  gather_facts: false
+  roles:
+    - role: app_db
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    - name: Retrieve molecule role
+      community.postgresql.postgresql_query:
+        query: SELECT * FROM pg_roles WHERE rolname='molecule';
+      register: query_result
+
+    - name: Fail if molecule role is not present
+      ansible.builtin.assert:
+        that: query_result.rowcount == 1
+        fail_msg: User molecule not found.
+
+    - name: Retrieve molecule database
+      community.postgresql.postgresql_query:
+        query: SELECT datname FROM pg_catalog.pg_database WHERE datname='molecule';
+      register: query_result
+
+    - name: Fail if molecule database is not present
+      ansible.builtin.assert:
+        that: query_result.rowcount == 1
+        fail_msg: Database molecule not found.
