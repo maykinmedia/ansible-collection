@@ -54,7 +54,7 @@ jobs:
         run: |
           uv pip install \
             --system \
-            -r requirements.txt
+            -r requirements/base.txt
         shell: bash
         
       - name: Run ansible-lint
