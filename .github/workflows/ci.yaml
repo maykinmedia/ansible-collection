@@ -1,0 +1,61 @@
+name: Run tests
+
+on:
+  push:
+    branches:
+      - main
+      - stable/*
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  molecule-tests:
+    name: Molecule tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        id: setup_python
+        with:
+          python-version: "3.12"
+
+      - name: Install uv (pip alternative)
+        id: setup_uv
+        # Docs: https://github.com/astral-sh/uv?tab=readme-ov-file#getting-started
+        run: |
+          pip install uv
+          # calculate cache parameters
+
+          cache_dependency_path="${{ steps.requirements_path.outputs.requirements_dir_prefix }}requirements/*.txt"
+
+          ubuntu_version=$(lsb_release -rs)
+          restore_key="uv-${{ runner.os }}-Ubuntu-${ubuntu_version}-python-${{ steps.setup_python.outputs.python-version }}"
+
+          echo "uv_cache_dir=$(uv cache dir)" >> "$GITHUB_OUTPUT"
+          echo "cache_dependency_path=${cache_dependency_path}" >> "$GITHUB_OUTPUT"
+          echo "cache_restore_key=${restore_key}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: (Restore) uv cache
+        id: uv-cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ steps.setup_uv.outputs.cache_restore_key }}-${{ hashFiles(steps.setup_uv.outputs.cache_dependency_path) }}
+          restore-keys: |
+            ${{ steps.setup_uv.outputs.cache_restore_key }}-
+          path: ${{ steps.setup_uv.outputs.uv_cache_dir }}
+
+      - name: Install Python dependencies
+        run: |
+          uv pip install \
+            --system \
+            -r requirements/dev.txt
+        shell: bash
+
+      - name: Run tests
+        run: |
+          molecule test --all
