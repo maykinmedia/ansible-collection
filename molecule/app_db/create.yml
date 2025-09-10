@@ -73,28 +73,3 @@
         that: "postgres_result.is_available == true"
         fail_msg: |
           Postgres is not reacheable
-
-- name: Build the Ansible collection
-  hosts: localhost
-  vars:
-    # playbook_dir is ./molecule/app_db, so work_dir is the root dir
-    work_dir: "{{ playbook_dir }}/../../"
-
-  tasks:
-    - name: Build collection
-      ansible.builtin.command: ansible-galaxy collection build -f
-      args:
-        chdir: "{{ work_dir }}"
-      register: build_output
-      changed_when: true
-
-    - name: Extract collection filename
-      ansible.builtin.set_fact:
-        collection_filename: "{{ build_output.stdout | regex_search('(/\\S+\\.tar\\.gz)') }}"
-
-    - name: Install collection
-      ansible.builtin.command: >
-        ansible-galaxy collection install {{ collection_filename }} -f
-      args:
-        chdir: "{{ work_dir }}"
-      changed_when: true

@@ -6,9 +6,10 @@
     - name: Stop and remove container
       delegate_to: localhost
       community.docker.docker_container:
-        name: "postgres-0"
+        name: "{{ item.image }}"
         state: absent
         auto_remove: true
+      loop: "{{ molecule_yml.platforms }}"
 
 - name: Remove dynamic molecule inventory
   hosts: localhost
