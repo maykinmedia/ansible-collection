@@ -1,0 +1,9 @@
+-r base.txt
+
+ansible-dev-tools
+
+# Used by molecule
+requests
+
+# Needed for community.postgresql
+psycopg2

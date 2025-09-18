@@ -1,6 +1,5 @@
-name: Run ansible-lint
+name: Run tests
 
-# Run this workflow every time a new commit pushed to your repository
 on:
   push:
     branches:
@@ -12,8 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  ansible-lint:
-    name: Ansible lint
+  molecule-tests:
+    name: Molecule tests
     runs-on: ubuntu-latest
 
     steps:
@@ -54,9 +53,9 @@ jobs:
         run: |
           uv pip install \
             --system \
-            -r requirements/base.txt
+            -r requirements/dev.txt
         shell: bash
-        
-      - name: Run ansible-lint
-        run: ansible-lint roles plugins meta galaxy.yml
 
+      - name: Run tests
+        run: |
+          molecule test --all

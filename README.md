@@ -28,6 +28,36 @@ The architecture is so that:
 3. Which is then exposed via NGINX
 4. Where SSL _can_ be disabled.
 
+## Running tests with Molecule
+
+In order to run the tests, you should install the python dependencies specified in `requirements/dev.txt`:
+
+```bash
+uv pip install -r ./requirements/dev.txt
+```
+
+The tests are located inside the `molecule/` folder. Molecule expects "scenarios" in this directory. To add a new scenario, use from the root folder:
+
+```bash
+molecule init scenario scenario_name
+```
+
+The tests can be run from the root folder with:
+
+```bash
+molecule test --all
+```
+
+The user running the molecule test command needs to have permissions to talk to the docker deamon, since the tests for roles like `app_db` we are using the `community.docker.docker_image` and `community.docker.docker_container` to create docker images and running containers.
+
+Make sure that the docker REST API is also reacheable. If not, you can use to restart the docker service and make it listen also on the TCP socket:
+
+```bash
+sudo systemctl stop docker.service
+sudo dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375
+```
+
+
 ## Publishing to Ansible Galaxy
 
 ### Setting up a token

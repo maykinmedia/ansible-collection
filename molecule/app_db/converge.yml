@@ -1,0 +1,13 @@
+---
+- name: Run role app_db
+  hosts: molecule
+  gather_facts: false
+  roles:
+    - role: app_db
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    - name: Provision database & database user
+      ansible.builtin.import_role:
+        name: app_db
