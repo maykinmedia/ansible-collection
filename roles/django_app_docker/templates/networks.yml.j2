@@ -4,3 +4,5 @@ networks:
   - name: "{{ django_app_docker_name_prefix }}"
 network_mode: "{{ django_app_docker_name_prefix }}"
 networks_cli_compatible: true
+{% if ansible_version.major == 2 and ansible_version.minor <= 10 %}purge_networks: true{% endif %}
+
