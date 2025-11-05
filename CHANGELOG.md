@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.4 (2025-11-05)
+
+Improvements:
+
+* [#57] Added testing with Molecule for roles nginx, and app_db. 
+
+Fixes:
+
+* [#60] Fix notify handler reference
+* [#61] Added variables `django_app_docker_logfile_size` and `django_app_docker_logfile_nr` to role `django_app_docker` to control the maximum size and the maximum number of log files per container of Django applications.
+
+Maintenance:
+
+* Bumped setuptools from `78.1.0` to `78.1.1`.
+
 ## 2.0.3 (2025-06-11)
 
 - Fixed undefined variable in volumes: in the `volumes_permissions | Set volume permissions` play, the `item` variable was no longer defined, because the `loop_var` in the play that registers `_django_app_docker_volumes` was renamed to `django_app_docker_volume`. This apparently affects the resulting dict.
