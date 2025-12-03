@@ -1,0 +1,20 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+platforms:
+  - name: postgres-0
+    image: postgres-with-python:17.6
+    pre_build_image: false
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      # ${MOLECULE_PROJECT_DIRECTORY} is the directory where `molecule test` is run
+      roles_path: "${MOLECULE_PROJECT_DIRECTORY}/roles/"

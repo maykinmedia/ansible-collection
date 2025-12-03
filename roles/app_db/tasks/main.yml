@@ -1,0 +1,83 @@
+---
+# Prepare the database: ensure the database exists and has the required
+# extensions configured + set up a db user.
+
+- name: Set up the database user
+  community.postgresql.postgresql_user:
+    state: present
+    name: "{{ app_db_user | mandatory }}"
+    password: "{{ app_db_password | mandatory }}"
+
+    login_host: "{{ app_db_host }}"
+    login_db: "{{ app_db_login_db }}"
+    port: "{{ app_db_port }}"
+    login_user: "{{ app_db_login_user }}"
+    login_password: "{{ app_db_login_password }}"
+  when: app_db_provision_user
+
+- name: Add application role to superuser
+  community.postgresql.postgresql_membership:
+    state: present
+    group: "{{ app_db_user | mandatory }}"
+    target_roles:
+      - "{{ app_db_login_user }}"
+
+    login_host: "{{ app_db_host }}"
+    login_db: "{{ app_db_login_db }}"
+    port: "{{ app_db_port }}"
+    login_user: "{{ app_db_login_user }}"
+    login_password: "{{ app_db_login_password }}"
+  when: app_db_provision_user and app_db_user != 'postgres'
+
+- name: Set up the extra database users
+  community.postgresql.postgresql_user:
+    state: present
+    name: "{{ app_db_extra_user.name | mandatory }}"
+    password: "{{ app_db_extra_user.password | mandatory }}"
+
+    login_host: "{{ app_db_host }}"
+    login_db: "{{ app_db_login_db }}"
+    port: "{{ app_db_port }}"
+    login_user: "{{ app_db_login_user }}"
+    login_password: "{{ app_db_login_password }}"
+  loop: "{{ app_db_extra_users }}"
+  loop_control:
+    loop_var: app_db_extra_user
+  no_log: true
+
+- name: Set up the application database
+  community.postgresql.postgresql_db:
+    name: "{{ app_db_name | mandatory }}"
+    owner: "{{ app_db_user | mandatory }}"
+    state: present
+
+    login_host: "{{ app_db_host }}"
+    port: "{{ app_db_port }}"
+    login_user: "{{ app_db_login_user }}"
+    login_password: "{{ app_db_login_password }}"
+  when: app_db_provision_database
+
+- name: Install extra database packages
+  ansible.builtin.package:
+    name: "{{ app_db_extra_packages }}"
+  when: app_db_extra_packages | bool
+
+- name: Enable the required database extensions
+  community.postgresql.postgresql_ext:
+    name: "{{ app_db_extension }}"
+    db: "{{ app_db_name | mandatory }}"
+    state: present
+
+    login_host: "{{ app_db_host }}"
+    port: "{{ app_db_port }}"
+    login_user: "{{ app_db_login_user }}"
+    login_password: "{{ app_db_login_password }}"
+  become: "{{ app_db_become_user != None }}"
+  become_user: "{{ app_db_become_user }}"
+  # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+  vars:
+    ansible_ssh_pipelining: true
+  loop: "{{ app_db_extensions }}"
+  loop_control:
+    loop_var: app_db_extension
+  no_log: true

@@ -1,0 +1,41 @@
+---
+# The port exposed on the container
+docker_app_application_port: 8000
+docker_app_image_registry: example-repository
+docker_app_image_name: example-image
+docker_app_image_version: example-tag-name
+# Name of the user to create on the target
+docker_app_user: example_user
+# A prefix that will be added to the container names
+docker_app_name_prefix: example-app
+# The range in which to scan for free ports on which to expose the containers on the target
+docker_app_port_range:
+  start: 14000
+  end: 16000
+# How many container replicas to run for the app
+docker_app_replicas: 1
+docker_app_state: started
+docker_app_healthcheck: {}
+docker_app_memory_limit: 0
+docker_app_swap_memory_limit: 0
+docker_app_cpu_limit: 0
+# Number of seconds to wait between deploying replicas, this can be used to prevent downtime.
+docker_app_replicas_loop_pause: 1
+
+# Path to the Docker env template.
+# In this template the environment variables needed for the app can be specified.
+docker_app_env_template: example-docker-env.j2
+
+# Volumes to create.
+# This is only needed if we are not mounting an existing dir
+docker_app_create_volumes:
+  enabled: false
+  # volumes:
+  #   - name: example-volume-name
+
+# Any volumes that should be mounted into the container
+docker_app_volumes_mounts: []
+# - /path/on/target/machine/:/path/in/container/
+
+# Set to true to restrict external access to the network
+docker_app_network_internal: false

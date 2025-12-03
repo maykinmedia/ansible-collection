@@ -1,0 +1,1 @@
+# Deploy static assets in a Docker container

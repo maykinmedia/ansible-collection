@@ -1,0 +1,10 @@
+---
+app_db_provision_user: true
+app_db_provision_database: true
+app_db_become_user: postgres
+app_db_user: molecule
+app_db_password: molecule
+app_db_name: molecule
+app_db_host: localhost
+app_db_port: 5432
+app_db_extensions: []

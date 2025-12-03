@@ -1,0 +1,50 @@
+---
+
+#######################################
+#                                     #
+# General namespacing settings        #
+#                                     #
+#######################################
+
+# prefix to use for container, network, volume... names
+theme_assets_docker_name_prefix: theme
+
+#######################################
+#                                     #
+# Container image definition          #
+#                                     #
+#######################################
+
+theme_assets_docker_image_registry: docker.io # use Docker Hub by default
+theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix}}"
+theme_assets_docker_versions:
+  - latest
+
+# Define the state of the containers, used for all containers, see
+# https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html#parameter-state
+# Does not impact the docker volumes and networks tasks
+theme_assets_docker_state: started
+
+theme_assets_docker_image_always_pull: false
+
+#######################################
+#                                     #
+# Host system interface               #
+#                                     #
+#######################################
+
+theme_assets_docker_port_range:
+  start: 11000
+  end: 12000
+
+# Configure container memory limits, both memory and swap_limit need to be set,
+# consult https://docs.docker.com/config/containers/resource_constraints/#--memory-swap-details
+# for more information.
+theme_assets_docker_memory_limit: 0
+theme_assets_docker_swap_memory_limit: 0
+
+# Configure container cpu limit (A value of 1.5 means that at most one and a half CPU (core) will be used)
+theme_assets_docker_cpus: 0
+
+# Set to true to restrict external access to the network
+theme_assets_docker_network_internal: false

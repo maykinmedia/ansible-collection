@@ -1,0 +1,75 @@
+---
+- name: Create
+  hosts: localhost
+  gather_facts: false
+  vars:
+    postgres_image: postgres:bookworm
+    molecule_inventory:
+      all:
+        hosts: {}
+        children:
+          molecule:
+            hosts:
+              postgres-0:
+                ansible_connection: community.docker.docker
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    - name: Build postgres image with python
+      community.docker.docker_image:
+        name: "{{ item.image }}"
+        build:
+          path: "{{ item.build.context }}"
+          dockerfile: "{{ item.build.dockerfile }}"
+        source: build
+      loop: "{{ molecule_yml.platforms }}"
+      register: docker_image
+
+    - name: Create a container
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        log_driver: json-file
+        published_ports:
+          - "127.0.0.1:54322:5432"
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+      register: result
+      loop: "{{ molecule_yml.platforms }}"
+
+    - name: Update molecule inventory to contain new container
+      ansible.builtin.copy:
+        content: |
+          {{ molecule_inventory | to_yaml }}
+        # molecule_ephemeral_directory directory is created automatically,
+        # on my system it was ~/.ansible/tmp/molecule.IO93.app_db
+        dest: "{{ molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+        mode: "0600"
+
+    - name: Force inventory refresh
+      ansible.builtin.meta: refresh_inventory
+
+    - name: Fail if molecule group is missing
+      ansible.builtin.assert:
+        that: "'molecule' in groups"
+        fail_msg: |
+          molecule group was not found inside inventory groups: {{ groups }}
+      run_once: true # noqa: run-once[task]
+
+- name: Check that Postgres is reacheable
+  hosts: localhost
+
+  tasks:
+    - name: Ping postgres
+      community.postgresql.postgresql_ping:
+        login_host: localhost
+        login_port: 54322
+      register: postgres_result
+
+    - name: Check that postgres is available
+      ansible.builtin.assert:
+        that: "postgres_result.is_available == true"
+        fail_msg: |
+          Postgres is not reacheable

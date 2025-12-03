@@ -73,6 +73,8 @@ Host machine interface:
 * `django_app_docker_port_range` - ports published from Docker to the host. 
   A list of free ports in this range will be generated and assiged. Make sure
   enough ports are available in the given range. Defaults to `14000-15000`.
+* `django_app_docker_logfile_size` - the max size per (json-file) logfile of the container. Defaults to 10m (10MB)
+* `django_app_docker_logfile_nr` - the max number of logfiles per container. Defaults to 10. (Combined: max 10x10MB on logging per container)
 
 Celery integration
 
