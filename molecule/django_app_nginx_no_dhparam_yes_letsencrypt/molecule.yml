@@ -1,0 +1,13 @@
+---
+dependency:
+  name: galaxy
+
+platforms:
+  - name: localhost
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      # ${MOLECULE_PROJECT_DIRECTORY} is the directory where `molecule test` is run
+      roles_path: "${MOLECULE_PROJECT_DIRECTORY}/roles/"

@@ -1,0 +1,13 @@
+---
+- name: Run role django_app_nginx
+  hosts: molecule
+  gather_facts: false
+  roles:
+    - role: django_app_nginx
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    - name: Run django_app_nginx role
+      ansible.builtin.import_role:
+        name: django_app_nginx
