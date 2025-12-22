@@ -1,0 +1,11 @@
+plugin: maykinmedia.commonground.inventory.intranet
+url: "https://inventory.example.nl/api/ansible/inventory/"
+token: "{{ lookup('env', 'DJANGO_INVENTORY_TOKEN') }}"
+verify_ssl: true
+timeout: 30
+query:
+  env: prod
+headers:
+  X-Client: ansible
+# cache: true
+# cache_timeout: 300
