@@ -11,8 +11,6 @@
   ansible.builtin.import_tasks: volumes.yml
 - name: Setup docker network
   ansible.builtin.import_tasks: network.yml
-- name: Get target machine free ports
-  ansible.builtin.import_tasks: freeports.yml
 - name: Run docker containers
   ansible.builtin.import_tasks: containers.yml
 - name: Set volume permissions

@@ -57,6 +57,19 @@ sudo systemctl stop docker.service
 sudo dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375
 ```
 
+## Testing a local version of the collection
+
+If you want to run playbooks with a modified version of the collection, you can build it as follows:
+
+```bash
+ansible-galaxy collection build -f
+```
+This will output the name of the file that has been produced, for example `/local/path/to/ansible-collection/maykinmedia-commonground-2.0.5.tar.gz`. Then, in the directory with your playbooks, you can run:
+
+```bash
+ansible-galaxy collection install /local/path/to/ansible-collection/maykinmedia-commonground-2.0.5.tar.gz
+``` 
+
 
 ## Publishing to Ansible Galaxy
 
