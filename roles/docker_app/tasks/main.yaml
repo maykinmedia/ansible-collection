@@ -79,21 +79,14 @@
   loop_control:
     loop_var: docker_app_counter
     pause: "{{ docker_app_replicas_loop_pause }}"
-  register: _docker_container_play_output
+  register: _app_replicas_info
 
 # Contains a list of containers that were started/updated by the
 # community.docker.docker_container play. The structure matches the output
 # of a docker inspection output.
 - name: Register information about the containers
   ansible.builtin.set_fact:
-    replicas_info: "{{ _docker_container_play_output.results }}"
-
-# The play community.docker.docker_container previously registered the output in
-# "backend_ports". This name is confusing, because it contains much more than that.
-# But we keep it for backwards compatibility. TODO: remove when we release 3.0
-- name: Register deprecated variable
-  ansible.builtin.set_fact:
-    backend_ports: "{{ _docker_container_play_output }}"
+    app_replicas_info: "{{ _app_replicas_info.results }}"
 
 - name: Clear docker image variable
   ansible.builtin.set_fact:

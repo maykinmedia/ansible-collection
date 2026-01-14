@@ -11,9 +11,7 @@ The following steps are taken to deploy the app:
 1. On the target, create a new user and group.
 1. Create Docker volumes owned by the new user, if needed.
 1. Create a Docker network.
-1. Make a list of free ports of the target
-1. Check if the containers for the application are already running.
-1. Start the application containers if they are not already running. They will be bound to the first available free port of the host found in the previous steps. If the containers are already running, restart them if the Docker environment file has changed.
+1. Start the application containers if they are not already running. The host port on which the services will be exposed is chosen by the OS. Otherwise restart them.
 
 ## Requirements
 
@@ -40,16 +38,12 @@ lead to an insecure deployment:
 * `docker_app_name_prefix` - used to namespace each application.
 * `docker_app_user` - used to create a user on the host machine.
 
-## Facts
+## Facts set
 
-This role sets the fact `replicas_info`. This fact contains information about the containers
-that were started by running this role. Information about the exposed ports on the hosts can be found as follows:
+* `app_replicas_info`: Contains a list of containers that were started/updated by the
+  `community.docker.docker_container` play that starts the application containers. 
+  The structure matches the output of a docker inspection output.
 
-```jinja
-{% for replica in replicas_info %}
-    {{ replica.container['NetworkSettings']['Ports'][[app_port,'tcp']|join('/')][0]['HostPort'] }};
-{% endfor %}
-```
 
 ## Dependencies
 
