@@ -1,12 +1,7 @@
 # Deploy static assets in a Docker container
 
-## Facts
+## Facts set
 
-This role sets the fact `replicas_info`. This fact contains information about the containers
-that were started by running this role. Information about the exposed ports on the hosts can be found as follows:
-
-```jinja
-{% for replica in replicas_info %}
-    {{ replica.container['NetworkSettings']['Ports']['8080/tcp'][0]['HostPort'] }};
-{% endfor %}
-```
+* `app_replicas_info`: Contains a list of containers that were started/updated by the
+  `community.docker.docker_container` play that starts the application containers. 
+  The structure matches the output of a docker inspection output.

@@ -53,10 +53,3 @@
 - name: Register information about the containers
   ansible.builtin.set_fact:
     replicas_info: "{{ _docker_container_play_output.results }}"
-
-# The play community.docker.docker_container previously registered the output in
-# "backend_ports". This name is confusing, because it contains much more than that.
-# But we keep it for backwards compatibility. TODO: remove when we release 3.0
-- name: Register deprecated variable
-  ansible.builtin.set_fact:
-    backend_ports: "{{ _docker_container_play_output }}"
