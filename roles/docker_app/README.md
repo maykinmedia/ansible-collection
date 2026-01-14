@@ -11,7 +11,7 @@ The following steps are taken to deploy the app:
 1. On the target, create a new user and group.
 1. Create Docker volumes owned by the new user, if needed.
 1. Create a Docker network.
-1. Start the application containers if they are not already running. The host port on which the services will be exposed is chosen by the OS. Otherwise restart them.
+1. Start the application containers if they are not already running, otherwise restart them. The host port on which the services will be exposed is chosen by the OS. 
 
 ## Requirements
 
