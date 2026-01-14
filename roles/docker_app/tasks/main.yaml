@@ -40,63 +40,12 @@
     name: "{{ docker_app_name_prefix }}"
     internal: "{{ docker_app_network_internal }}"
 
-- name: Copy free ports script to host
-  ansible.builtin.copy:
-    content: |
-      #!/usr/bin/python3
-      import socket
-      for p in range({{ docker_app_port_range.start }},{{ docker_app_port_range.end }}):
-          import socket
-          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-          try:
-            s.bind(("",p))
-          except:
-              pass
-          port = s.getsockname()[1]
-          s.close()
-          if port != 0:
-            print(p)
-    dest: /tmp/freeports.py
-    mode: "0700"
-
-- name: Generate list of free ports
-  ansible.builtin.command: python3 /tmp/freeports.py
-  register: _docker_freeports
-  no_log: true
-  changed_when: false
-
-- name: Check if app containers already exists
-  community.docker.docker_container_info:
-    name: "{{ docker_app_name_prefix }}-{{ docker_app_counter }}"
-  loop: "{{ range(docker_app_replicas) | list }}"
-  loop_control:
-    loop_var: docker_app_counter
-  register: _docker_app_container_info
-
-- name: Make list of container names
-  ansible.builtin.set_fact:
-    _app_container_replicas_names: "{{ _app_container_replicas_names | default([]) + [[docker_app_name_prefix, docker_app_counter] | join('-')] }}"
-  loop: "{{ range(docker_app_replicas) | list }}"
-  loop_control:
-    loop_var: docker_app_counter
-
-# For each container, either take the port on which it is running or take one of the free ports
-- name: Make list of ports for the containers
-  ansible.builtin.set_fact:
-    _app_container_replica_ports: "{{ _app_container_replica_ports | default([]) + [
-    _docker_app_container_info.results[docker_app_counter].exists | ternary(
-    _docker_app_container_info.results[docker_app_counter].container.HostConfig.PortBindings[[app_port,
-      'tcp'] | join('/')][0].HostPort, _docker_freeports.stdout_lines[docker_app_counter])] }}"
-  loop: "{{ range(docker_app_replicas) | list }}"
-  loop_control:
-    loop_var: docker_app_counter
-
 - name: Run the app containers
   community.docker.docker_container:
     container_default_behavior: no_defaults
-    name: "{{ _app_container_replicas_names[docker_app_counter] }}"
+    name: "{{ docker_app_name_prefix }}-{{ docker_app_counter }}"
     image: "{{ docker_app_image | mandatory }}"
-    hostname: "{{ _app_container_replicas_names[docker_app_counter] }}"
+    hostname: "{{ docker_app_name_prefix }}-{{ docker_app_counter }}"
     state: "{{ docker_app_state }}"
     pull: true # always pull
     restart: "{{ _docker_env_file.changed }}"
@@ -122,7 +71,7 @@
     volumes: "{{ docker_app_volumes_mounts | default([]) }}"
 
     published_ports:
-      - "127.0.0.1:{{ _app_container_replica_ports[docker_app_counter] }}:{{ app_port }}"
+      - "{{ app_port }}"
     comparisons:
       env: strict
       volumes: strict
@@ -130,7 +79,21 @@
   loop_control:
     loop_var: docker_app_counter
     pause: "{{ docker_app_replicas_loop_pause }}"
-  register: backend_ports
+  register: _docker_container_play_output
+
+# Contains a list of containers that were started/updated by the
+# community.docker.docker_container play. The structure matches the output
+# of a docker inspection output.
+- name: Register information about the containers
+  ansible.builtin.set_fact:
+    replicas_info: "{{ _docker_container_play_output.results }}"
+
+# The play community.docker.docker_container previously registered the output in
+# "backend_ports". This name is confusing, because it contains much more than that.
+# But we keep it for backwards compatibility. TODO: remove when we release 3.0
+- name: Register deprecated variable
+  ansible.builtin.set_fact:
+    backend_ports: "{{ _docker_container_play_output }}"
 
 - name: Clear docker image variable
   ansible.builtin.set_fact:

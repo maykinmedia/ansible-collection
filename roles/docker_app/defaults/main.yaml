@@ -8,10 +8,7 @@ docker_app_image_version: example-tag-name
 docker_app_user: example_user
 # A prefix that will be added to the container names
 docker_app_name_prefix: example-app
-# The range in which to scan for free ports on which to expose the containers on the target
-docker_app_port_range:
-  start: 14000
-  end: 16000
+
 # How many container replicas to run for the app
 docker_app_replicas: 1
 docker_app_state: started

@@ -40,6 +40,17 @@ lead to an insecure deployment:
 * `docker_app_name_prefix` - used to namespace each application.
 * `docker_app_user` - used to create a user on the host machine.
 
+## Facts
+
+This role sets the fact `replicas_info`. This fact contains information about the containers
+that were started by running this role. Information about the exposed ports on the hosts can be found as follows:
+
+```jinja
+{% for replica in replicas_info %}
+    {{ replica.container['NetworkSettings']['Ports'][[app_port,'tcp']|join('/')][0]['HostPort'] }};
+{% endfor %}
+```
+
 ## Dependencies
 
 * `community.docker` collection to manage Docker infrastructure
