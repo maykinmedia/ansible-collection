@@ -42,6 +42,7 @@
     comparisons:
       env: strict
       volumes: strict
+      networks: strict
   loop: "{{ theme_assets_docker_versions }}"
   loop_control:
     index_var: index

@@ -10,7 +10,7 @@
 
     login_host: "{{ app_db_host }}"
     login_db: "{{ app_db_login_db }}"
-    port: "{{ app_db_port }}"
+    login_port: "{{ app_db_port }}"
     login_user: "{{ app_db_login_user }}"
     login_password: "{{ app_db_login_password }}"
   when: app_db_provision_user
@@ -24,7 +24,7 @@
 
     login_host: "{{ app_db_host }}"
     login_db: "{{ app_db_login_db }}"
-    port: "{{ app_db_port }}"
+    login_port: "{{ app_db_port }}"
     login_user: "{{ app_db_login_user }}"
     login_password: "{{ app_db_login_password }}"
   when: app_db_provision_user and app_db_user != 'postgres'
@@ -37,7 +37,7 @@
 
     login_host: "{{ app_db_host }}"
     login_db: "{{ app_db_login_db }}"
-    port: "{{ app_db_port }}"
+    login_port: "{{ app_db_port }}"
     login_user: "{{ app_db_login_user }}"
     login_password: "{{ app_db_login_password }}"
   loop: "{{ app_db_extra_users }}"
@@ -52,7 +52,7 @@
     state: present
 
     login_host: "{{ app_db_host }}"
-    port: "{{ app_db_port }}"
+    login_port: "{{ app_db_port }}"
     login_user: "{{ app_db_login_user }}"
     login_password: "{{ app_db_login_password }}"
   when: app_db_provision_database
@@ -60,16 +60,16 @@
 - name: Install extra database packages
   ansible.builtin.package:
     name: "{{ app_db_extra_packages }}"
-  when: app_db_extra_packages | bool
+  when: app_db_extra_packages | length > 0
 
 - name: Enable the required database extensions
   community.postgresql.postgresql_ext:
     name: "{{ app_db_extension }}"
-    db: "{{ app_db_name | mandatory }}"
+    login_db: "{{ app_db_name | mandatory }}"
     state: present
 
     login_host: "{{ app_db_host }}"
-    port: "{{ app_db_port }}"
+    login_port: "{{ app_db_port }}"
     login_user: "{{ app_db_login_user }}"
     login_password: "{{ app_db_login_password }}"
   become: "{{ app_db_become_user != None }}"
