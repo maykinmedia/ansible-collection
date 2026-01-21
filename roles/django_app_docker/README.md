@@ -89,17 +89,13 @@ This role sets some facts that can be used in subsequent roles:
 * `django_app_docker_image` the resolved image 'name'. Combines image registry, image name
   and tag/sha256.
 
-* `_django_app_docker_replicas`: a list of replicas, derived from the number of desired
-  replicas and starting port. You can use this to define nginx upstreams, for example:
+* `django_app_replicas_info`: Contains a list of containers that were started/updated by the
+  `community.docker.docker_container` play that starts the Django web app containers. 
+  The structure matches the output of a docker inspection output.
 
-  ```yaml
-  - name: <prefix>-0
-    port: 8000
-  - name: <prefix>-1
-    port: 8001
-  - name: <prefix>-2
-    port: 8002
-  ```
+* `flower_container_info`: Contains information about the Flower container that was started/updated by the 
+  `community.docker.docker_container play`. The structure matches the output of a docker inspection output.
+
 
 Dependencies
 ------------
@@ -129,9 +125,6 @@ Example Playbook
     django_app_docker_version: latest
     django_app_docker_image_name: scrumteamzgw/bptl
     django_app_docker_replicas: 1
-    django_app_docker_port_range: 
-      start: 8000
-      end: 8010
 
   roles:
     - role: django_app_docker
@@ -157,9 +150,6 @@ Example Playbook
     django_app_docker_version: latest
     django_app_docker_image_name: scrumteamzgw/bptl
     django_app_docker_replicas: 1
-    django_app_docker_port_range: 
-      start: 13000
-      end: 13010
 
     django_app_docker_use_celery: true
     django_app_docker_use_celery_beat: true

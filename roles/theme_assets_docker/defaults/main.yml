@@ -16,7 +16,7 @@ theme_assets_docker_name_prefix: theme
 #######################################
 
 theme_assets_docker_image_registry: docker.io # use Docker Hub by default
-theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix}}"
+theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix }}"
 theme_assets_docker_versions:
   - latest
 
@@ -32,10 +32,6 @@ theme_assets_docker_image_always_pull: false
 # Host system interface               #
 #                                     #
 #######################################
-
-theme_assets_docker_port_range:
-  start: 11000
-  end: 12000
 
 # Configure container memory limits, both memory and swap_limit need to be set,
 # consult https://docs.docker.com/config/containers/resource_constraints/#--memory-swap-details

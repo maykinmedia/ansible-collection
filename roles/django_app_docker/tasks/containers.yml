@@ -15,29 +15,20 @@
   community.docker.docker_container: "{{ lookup('template', 'elasticsearch-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_elasticsearch
 
-- name: "containers | Check if django containers already exists and register port"
-  community.docker.docker_container_info:
-    name: "{{ django_app_docker_name_prefix }}-{{ django_app_docker_counter }}"
-  loop: "{{ range(django_app_docker_replicas) | list }}"
-  loop_control:
-    loop_var: django_app_docker_counter
-  register: _django_app_docker_container_info
-
-- name: "containers | Determine the replicas"
-  ansible.builtin.set_fact:
-    _django_app_docker_replicas: "{{ lookup('template', 'replicas.yml.j2') | from_yaml }}"
-
 - name: "containers | Run the django backend containers"
   community.docker.docker_container: "{{ lookup('template', 'django-container.yml.j2') | from_yaml }}"
-  loop: "{{ _django_app_docker_replicas }}"
+  loop: "{{ range(docker_app_replicas) | list }}"
   loop_control:
-    loop_var: django_app_docker_replica
+    loop_var: docker_app_counter
     pause: "{{ django_app_docker_replicas_loop_pause }}"
-  register: backend_ports
+  register: _django_app_replicas_container_info
 
-- name: "containers | Get the port of the first replica before flower overwrites it"
+# Contains a list of containers that were started/updated by the
+# community.docker.docker_container play. The structure matches the output
+# of a docker inspection output.
+- name: containers | Register information about the webapp containers
   ansible.builtin.set_fact:
-    _django_app_docker_port: "{{ _django_app_docker_freeports.stdout_lines[0] }}"
+    django_app_replicas_info: "{{ _django_app_replicas_container_info.results }}"
 
 - name: "containers | Determine the celery worker replicas"
   ansible.builtin.set_fact:
@@ -59,16 +50,14 @@
   community.docker.docker_container: "{{ lookup('template', 'celery-beat-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_celery_beat
 
-- name: "containers | Check if flower containers already exists and register port if exists"
-  community.docker.docker_container_info:
-    name: "{{ django_app_docker_name_prefix }}-flower"
-  register: _django_app_docker_container_info_flower
-
-- name: "containers | When no flower container found, recheck free ports"
-  ansible.builtin.import_tasks: freeports.yml
-  when: not _django_app_docker_container_info_flower.exists
-
 - name: "containers | Run the celery flower container"
   community.docker.docker_container: "{{ lookup('template', 'celery-flower-container.yml.j2') | from_yaml }}"
   when: django_app_docker_use_flower
-  register: flower_ports
+  register: _flower_container_info
+
+# Contains information about the container that was started/updated by the
+# community.docker.docker_container play. The structure matches the output
+# of a docker inspection output.
+- name: containers | Register info about the Flower container
+  ansible.builtin.set_fact:
+    flower_container_info: "{{ _flower_container_info }}"
