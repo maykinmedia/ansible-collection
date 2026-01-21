@@ -31,7 +31,7 @@ memory_swap: {{ django_app_docker_memory_swap_limit }}
 cpus: {{ django_app_docker_cpus }}
 
 published_ports:
-  - 8000
+  - 127.0.0.1::8000
 comparisons:
   env: strict
   volumes: strict

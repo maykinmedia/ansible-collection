@@ -71,7 +71,7 @@
     volumes: "{{ docker_app_volumes_mounts | default([]) }}"
 
     published_ports:
-      - "{{ app_port }}"
+      - "127.0.0.1::{{ app_port }}"
     comparisons:
       env: strict
       volumes: strict

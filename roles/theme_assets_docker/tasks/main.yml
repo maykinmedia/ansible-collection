@@ -38,7 +38,7 @@
     cpus: "{{ theme_assets_docker_cpus }}"
 
     published_ports:
-      - 8080
+      - 127.0.0.1::8080
     comparisons:
       env: strict
       volumes: strict
