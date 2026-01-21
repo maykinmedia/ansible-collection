@@ -126,6 +126,7 @@
     comparisons:
       env: strict
       volumes: strict
+      networks: strict
   loop: "{{ range(docker_app_replicas) | list }}"
   loop_control:
     loop_var: docker_app_counter
