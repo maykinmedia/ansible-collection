@@ -1,0 +1,5 @@
+---
+django_app_nginx_letsencrypt_enabled: false
+django_app_nginx_generate_dhparam: false
+
+django_app_nginx_domain: "molecule.example.com"

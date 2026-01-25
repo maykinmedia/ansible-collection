@@ -1,0 +1,19 @@
+---
+- name: Test role set the right facts
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: django_app_nginx
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    - name: Check fact django_app_nginx_ssl_certificate
+      ansible.builtin.assert:
+        that: django_app_nginx_ssl_certificate == "/etc/letsencrypt/live/molecule.example.com/fullchain.pem"
+        fail_msg: django_app_nginx_ssl_certificate fact different than expected
+
+    - name: Check fact django_app_nginx_ssl_key
+      ansible.builtin.assert:
+        that: django_app_nginx_ssl_key == "/etc/letsencrypt/live/molecule.example.com/privkey.pem"
+        fail_msg: django_app_nginx_ssl_key fact different than expected
