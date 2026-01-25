@@ -20,7 +20,7 @@ options:
   plugin:
     description: Token that ensures this is a source file for this plugin.
     required: true
-    choices: ['maykinmedia.commonground.inventory.intranet']
+    choices: ['maykinmedia.commonground.intranet']
   url:
     description: Base URL of the Django inventory endpoint (should return Ansible inventory JSON).
     required: true
@@ -64,7 +64,7 @@ options:
 
 # This name MUST match the `plugin:` value in inventory YAML
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
-    NAME = 'maykinmedia.commonground.inventory.intranet'
+    NAME = 'maykinmedia.commonground.intranet'
 
     def verify_file(self, path):
         """Return True if this is a YAML config for this plugin."""
