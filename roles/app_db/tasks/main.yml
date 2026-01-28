@@ -57,11 +57,6 @@
     login_password: "{{ app_db_login_password }}"
   when: app_db_provision_database
 
-- name: Install extra database packages
-  ansible.builtin.package:
-    name: "{{ app_db_extra_packages }}"
-  when: app_db_extra_packages | length > 0
-
 - name: Enable the required database extensions
   community.postgresql.postgresql_ext:
     name: "{{ app_db_extension }}"
