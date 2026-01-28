@@ -4,6 +4,10 @@
 
 ### Breaking changes
 
+**Ansible version**
+
+The version of Ansible has been bumped from `11.4.0` to `13.2.0`.
+
 **Free ports**
 
 Removed the free-port searching script. This affects the following roles:

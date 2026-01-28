@@ -17,7 +17,7 @@
 
 - name: "containers | Run the django backend containers"
   community.docker.docker_container: "{{ lookup('template', 'django-container.yml.j2') | from_yaml }}"
-  loop: "{{ range(docker_app_replicas) | list }}"
+  loop: "{{ range(django_app_docker_replicas) | list }}"
   loop_control:
     loop_var: docker_app_counter
     pause: "{{ django_app_docker_replicas_loop_pause }}"
