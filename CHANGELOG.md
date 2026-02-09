@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 (2026-02-09)
+
+- The version of Ansible has been bumped from 11.4.0 to 13.2.0.
+
 ## 2.0.4 (2025-11-05)
 
 Improvements:
