@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0 (2026-04-29)
+
+- [#73] Added `django_app_docker_default_env` variable
+
 ## 2.1.0 (2026-02-09)
 
 - The version of Ansible has been bumped from 11.4.0 to 13.2.0.
@@ -8,7 +12,7 @@
 
 Improvements:
 
-* [#57] Added testing with Molecule for roles nginx, and app_db. 
+* [#57] Added testing with Molecule for roles nginx, and app_db.
 
 Fixes:
 
