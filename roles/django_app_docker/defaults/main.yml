@@ -243,9 +243,19 @@ django_app_docker_mail_default_from: "{{ django_app_docker_name_prefix }}@{{ dja
 #                                     #
 #######################################
 
-# Add extra arbitrary environment variables. These are added to the end of the .env
-# file, and therefore override any earlier entries.
+# Base environment variables for the Django application.
+# These are added to the end of the .env file, and therefore override any earlier entries.
 #
+# Format:
+#
+#   django_app_docker_default_env:
+#     SOME_ENVVAR: some-value
+#
+django_app_docker_default_env: {}
+
+# Add extra environment variables in addition to the default ones. These are added to the end of the .env
+# file, and therefore override any earlier entries, including those defined in the default environment group.
+
 # Format:
 #
 #   django_app_docker_extra_env:
