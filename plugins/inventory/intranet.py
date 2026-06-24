@@ -41,7 +41,7 @@ options:
     type: int
     default: 30
   query:
-    description: Query parameters to append to the URL (e.g. env=prod).
+    description: Query parameters to append to the URL (e.g. type=prod).
     required: false
     type: dict
     default: {}
