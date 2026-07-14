@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0 (2026-07-14)
+
+- [#69] Adding inventory intranet plugin
+
 ## 2.2.0 (2026-04-29)
 
 - [#73] Added `django_app_docker_default_env` variable
