@@ -2,7 +2,7 @@
 
 ## 2.3.0 (2026-07-14)
 
-- [#69] Adding inventory intranet plugin
+- [Taiga #1298 (https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1298)] Adding inventory intranet plugin
 
 ## 2.2.0 (2026-04-29)
 
