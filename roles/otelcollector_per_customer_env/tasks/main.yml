@@ -11,6 +11,7 @@
   ansible.builtin.template:
     src: otel-collector-config.yml.j2
     dest: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector/otel-collector.yml"
+    mode: u=rw,g=r,o=
   when: otelcollector_per_customer_env_enabled
   register: _otelcollector_per_customer_env_config
 
