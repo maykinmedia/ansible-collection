@@ -4,6 +4,7 @@ env/
 *.retry
 .python-version
 .ansible
+*.swp
 
 # built collections & local installations
 *.tar.gz

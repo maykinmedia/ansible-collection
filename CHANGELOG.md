@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.0 (2026-08-10)
+
+- Added `otelcollector_per_customer_env` role, deploying a per-customer environment OTel collector that scrapes
+  redis & flower metrics and forwards them to a central OTel collector.
+
 ## 2.3.0 (2026-07-14)
 
 - [Taiga #1298 (https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1298)] Adding inventory intranet plugin
