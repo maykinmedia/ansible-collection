@@ -3,10 +3,8 @@
 
 receivers:
   # Why redis and flower are configured in such a different way here:
-  # Redis doesn't expose a metrics endpoint at all. Instead, we talk to it over the normal Redis protocol and OTel Collector's dedicated redis receiver 
-  # knows how to do that natively.
-  # Flower exposes metrics the standard way most web apps do: a Prometheus-format HTTP endpoint (/metrics) that we scrape. There's no dedicated flower 
-  # receiver in OTel Collector, so this uses the generic prometheus receiver, which is an embedded Prometheus scraper. 
+  # Redis doesn't expose a metrics endpoint at all. Instead, we talk to it over the normal Redis protocol and OTel Collector's dedicated redis receiver knows how to do that natively.
+  # Flower exposes metrics the standard way most web apps do: a Prometheus-format HTTP endpoint (/metrics) that we scrape. There's no dedicated flower receiver in OTel Collector, so this uses the generic prometheus receiver, which is an embedded Prometheus scraper. 
   redis:
     endpoint: "{{ otelcollector_per_customer_env_redis_endpoint }}"
     collection_interval: {{ otelcollector_per_customer_env_redis_collection_interval }}
