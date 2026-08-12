@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  author: Maykin Media
+  description: Deploy a per-customer environment OTel collector that scrapes redis & flower and forwards to the central collector on Fiona
+  company: Maykin Media
+
+  issue_tracker_url: https://github.com/maykinmedia/ansible-collection/issues
+
+  license: MIT
+
+  min_ansible_version: "dummy" # Not actually used, but needed by ansible-lint
+
+  platforms:
+    - name: Debian
+      versions:
+        - jessie
+        - stretch
+        - buster
+    - name: Ubuntu
+      versions:
+        - bionic
+        - cosmic
+        - disco
+        - eoan
+
+  galaxy_tags:
+    - opentelemetry
+    - monitoring
+
+dependencies: []

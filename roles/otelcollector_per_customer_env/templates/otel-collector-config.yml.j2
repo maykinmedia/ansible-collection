@@ -1,0 +1,56 @@
+---
+# {{ ansible_managed }}
+
+receivers:
+  # Why redis and flower are configured in such a different way here:
+  # Redis doesn't expose a metrics endpoint at all. Instead, we talk to it over the normal Redis protocol and OTel Collector's dedicated redis receiver knows how to do that natively.
+  # Flower exposes metrics the standard way most web apps do: a Prometheus-format HTTP endpoint (/metrics) that we scrape. There's no dedicated flower receiver in OTel Collector, so this uses the generic prometheus receiver, which is an embedded Prometheus scraper. 
+  redis:
+    endpoint: "{{ otelcollector_per_customer_env_redis_endpoint }}"
+    collection_interval: {{ otelcollector_per_customer_env_redis_collection_interval }}
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: flower
+          scrape_interval: {{ otelcollector_per_customer_env_flower_scrape_interval }}
+          metrics_path: "{{ otelcollector_per_customer_env_flower_metrics_path }}"
+{% if otelcollector_per_customer_env_flower_username %}
+          basic_auth:
+            username: "{{ otelcollector_per_customer_env_flower_username }}"
+            password: "{{ otelcollector_per_customer_env_flower_password }}"
+{% endif %}
+          static_configs:
+            - targets: ["{{ otelcollector_per_customer_env_flower_endpoint }}"]
+
+processors:
+  batch:
+    timeout: 200ms # default
+    send_batch_size: 8192 # default
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: {{ otelcollector_per_customer_env_memory_limit_mib }}
+  # Label every metric with the customer/target it belongs to, so the central
+  # collector can attribute them the same way it already does for the app's own
+  # OTLP metrics (see maykin_otelcollector's `transform` processor upstream).
+  resource:
+    attributes:
+{% for key, value in otelcollector_per_customer_env_resource_attributes.items() %}
+      - key: "{{ key }}"
+        value: "{{ value }}"
+        action: upsert
+{% endfor %}
+
+exporters:
+  otlp:
+    endpoint: "{{ otelcollector_per_customer_env_otlp_endpoint | regex_replace('^https?://', '') }}"
+{% if otelcollector_per_customer_env_otlp_basic_auth %}
+    headers:
+      Authorization: "Basic {{ otelcollector_per_customer_env_otlp_basic_auth }}"
+{% endif %}
+
+service:
+  pipelines:
+    metrics:
+      receivers: [redis, prometheus]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlp]

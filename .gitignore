@@ -4,6 +4,7 @@ env/
 *.retry
 .python-version
 .ansible
+*.swp
 .idea
 
 # built collections & local installations

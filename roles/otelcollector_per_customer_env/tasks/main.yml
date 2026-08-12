@@ -1,0 +1,42 @@
+---
+
+- name: Fail if otelcollector_per_customer_env_name_prefix is not set
+  ansible.builtin.fail:
+    msg: otelcollector_per_customer_env_name_prefix must not be empty.
+  when: not otelcollector_per_customer_env_name_prefix
+
+- name: Configure otel collector
+  when: otelcollector_per_customer_env_enabled
+  block:
+    - name: Create otel collector config directory
+      ansible.builtin.file:
+        path: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector"
+        state: directory
+        mode: "0755"
+
+    - name: Set otel collector configuration
+      ansible.builtin.template:
+        src: otel-collector-config.yml.j2
+        dest: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector/otel-collector.yml"
+        mode: u=rw,g=r,o=
+      register: _otelcollector_per_customer_env_config
+
+- name: Deploy otel collector container
+  community.docker.docker_container:
+    name: "{{ otelcollector_per_customer_env_name_prefix }}-otel-collector"
+    image: "{{ otelcollector_per_customer_env_image }}"
+    command: "--config /etc/otel-collector.yml"
+    state: "{{ 'started' if otelcollector_per_customer_env_enabled else 'absent' }}"
+    restart: "{{ _otelcollector_per_customer_env_config.changed | default(false) }}"
+    restart_policy: always
+    memory: "{{ otelcollector_per_customer_env_memory_limit_mib }}m"
+    volumes:
+      - "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector/otel-collector.yml:/etc/otel-collector.yml"
+    networks:
+      - name: "{{ otelcollector_per_customer_env_docker_network }}"
+    network_mode: "{{ otelcollector_per_customer_env_docker_network }}"
+    networks_cli_compatible: true
+    log_driver: json-file
+    log_options:
+      max-size: 10m
+      max-file: '10'

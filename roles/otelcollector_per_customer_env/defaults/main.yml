@@ -1,0 +1,39 @@
+---
+
+# Set to false to remove the collector container if it exists.
+otelcollector_per_customer_env_enabled: false
+
+# Used to namespace the container name and its config directory on the host.
+otelcollector_per_customer_env_name_prefix: ''
+
+# otelcol-contrib image, pinned to match the central ("Fiona") collector.
+otelcollector_per_customer_env_image: "docker.io/otel/opentelemetry-collector-contrib:0.137.0"
+
+# Docker network the collector container should join, so it can reach redis/
+# flower by container name. This is normally the same isolated network the app
+# itself runs in (e.g. the network created by django_app_docker).
+otelcollector_per_customer_env_docker_network: "{{ otelcollector_per_customer_env_name_prefix }}"
+
+# host:port of the redis instance to scrape via the otelcol `redis` receiver.
+otelcollector_per_customer_env_redis_endpoint: "{{ otelcollector_per_customer_env_name_prefix }}-redis:6379"
+otelcollector_per_customer_env_redis_collection_interval: 60s
+
+# host:port + path of Flower's built-in Prometheus metrics endpoint, and the
+# basic auth credentials it's protected with (same as the Flower UI).
+otelcollector_per_customer_env_flower_endpoint: "{{ otelcollector_per_customer_env_name_prefix }}-flower:5555"
+otelcollector_per_customer_env_flower_metrics_path: /metrics
+otelcollector_per_customer_env_flower_username: ""
+otelcollector_per_customer_env_flower_password: ""
+otelcollector_per_customer_env_flower_scrape_interval: 60s
+
+# Resource attributes attached to every metric, e.g. maykin.saas.client /
+# maykin.saas.target, so the central collector can label metrics per customer.
+otelcollector_per_customer_env_resource_attributes: {}
+
+# Where to forward metrics to - defaults to the central "Fiona" collector.
+otelcollector_per_customer_env_otlp_endpoint: "https://otel.maykinmedia.nl:4317"
+otelcollector_per_customer_env_otlp_basic_auth: ""
+
+# Kept small on purpose: this collector only handles two lightweight scrape
+# targets, unlike the central collector.
+otelcollector_per_customer_env_memory_limit_mib: 128
