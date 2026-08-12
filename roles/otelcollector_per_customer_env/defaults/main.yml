@@ -4,7 +4,7 @@
 otelcollector_per_customer_env_enabled: false
 
 # Used to namespace the container name and its config directory on the host.
-otelcollector_per_customer_env_name_prefix: app
+otelcollector_per_customer_env_name_prefix: ''
 
 # otelcol-contrib image, pinned to match the central ("Fiona") collector.
 otelcollector_per_customer_env_image: "docker.io/otel/opentelemetry-collector-contrib:0.137.0"

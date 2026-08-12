@@ -1,19 +1,25 @@
 ---
 
-- name: Create otel collector config directory
-  ansible.builtin.file:
-    path: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector"
-    state: directory
-    mode: "0755"
-  when: otelcollector_per_customer_env_enabled
+- name: Fail if otelcollector_per_customer_env_name_prefix is not set
+  ansible.builtin.fail:
+    msg: otelcollector_per_customer_env_name_prefix must not be empty.
+  when: not otelcollector_per_customer_env_name_prefix
 
-- name: Set otel collector configuration
-  ansible.builtin.template:
-    src: otel-collector-config.yml.j2
-    dest: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector/otel-collector.yml"
-    mode: u=rw,g=r,o=
+- name: Configure otel collector
   when: otelcollector_per_customer_env_enabled
-  register: _otelcollector_per_customer_env_config
+  block:
+    - name: Create otel collector config directory
+      ansible.builtin.file:
+        path: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector"
+        state: directory
+        mode: "0755"
+
+    - name: Set otel collector configuration
+      ansible.builtin.template:
+        src: otel-collector-config.yml.j2
+        dest: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector/otel-collector.yml"
+        mode: u=rw,g=r,o=
+      register: _otelcollector_per_customer_env_config
 
 - name: Deploy otel collector container
   community.docker.docker_container:
