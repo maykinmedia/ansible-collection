@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.1 (2026-08-17)
+
+- [`Taiga #1176`][#1176] Added a group to the config file because else it could not be read.
+
 ## 2.4.0 (2026-08-10)
 
 - [`Taiga #1176`][#1176] Added `otelcollector_per_customer_env` role, deploying a per-customer environment OTel collector that scrapes
