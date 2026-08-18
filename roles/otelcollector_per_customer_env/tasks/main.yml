@@ -19,6 +19,8 @@
         src: otel-collector-config.yml.j2
         dest: "/opt/{{ otelcollector_per_customer_env_name_prefix }}-otelcollector/otel-collector.yml"
         mode: u=rw,g=r,o=
+        # For the collector to have access to the config file, it needs to be in group 10001.
+        group: "10001"
       register: _otelcollector_per_customer_env_config
 
 - name: Deploy otel collector container
