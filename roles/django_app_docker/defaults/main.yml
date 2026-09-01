@@ -123,6 +123,18 @@ django_app_docker_port_range:
   start: 14000
   end: 15000
 
+# Path to a lock directory used to serialize free-port allocation across concurrent
+# ansible-playbook runs targeting the same host, so parallel deploys can't select
+# the same free port for two different new containers.
+django_app_docker_portlock_path: /tmp/django_app_docker_portalloc.lock
+# How many times to retry acquiring the port allocation lock, and how long to wait
+# (in seconds) between retries, before giving up.
+django_app_docker_portlock_retries: 60
+django_app_docker_portlock_delay: 5
+# A held lock older than this (in seconds) is considered abandoned by a crashed
+# run and is broken automatically instead of blocking deploys forever.
+django_app_docker_portlock_max_age: 1800
+
 # Set to 'compatibility' to restore defaults,
 # For more info, see:
 # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html#parameter-container_default_behavior

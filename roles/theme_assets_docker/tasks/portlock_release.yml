@@ -1,0 +1,5 @@
+---
+- name: portlock_release | Release port allocation lock
+  ansible.builtin.file:
+    path: "{{ theme_assets_docker_portlock_path }}"
+    state: absent

@@ -37,6 +37,18 @@ theme_assets_docker_port_range:
   start: 11000
   end: 12000
 
+# Path to a lock directory used to serialize free-port allocation across concurrent
+# ansible-playbook runs targeting the same host, so parallel deploys can't select
+# the same free port for two different new containers.
+theme_assets_docker_portlock_path: /tmp/theme_assets_docker_portalloc.lock
+# How many times to retry acquiring the port allocation lock, and how long to wait
+# (in seconds) between retries, before giving up.
+theme_assets_docker_portlock_retries: 60
+theme_assets_docker_portlock_delay: 5
+# A held lock older than this (in seconds) is considered abandoned by a crashed
+# run and is broken automatically instead of blocking deploys forever.
+theme_assets_docker_portlock_max_age: 1800
+
 # Configure container memory limits, both memory and swap_limit need to be set,
 # consult https://docs.docker.com/config/containers/resource_constraints/#--memory-swap-details
 # for more information.

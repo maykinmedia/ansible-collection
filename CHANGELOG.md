@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.0 (2026-09-01)
+
+- [`Taiga #1551`][#1551] Added a fix for the free host-port allocation on concurrent uses of the `django_app_docker` and `theme_assets_docker` roles issue. That is: the creation of a lock file on the server, forcing concurrent runs to be executed one after the other, so they can no longer select the same port for two different new containers. To avoid an eternal lock file after a crash, we check for its age. If it is older than 30 minutes, it is considered stale and deleted, so we never get stuck.
+
+[#1551]: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1551
+
 ## 2.4.1 (2026-08-17)
 
 - [`Taiga #1176`][#1176] Added a group to the config file because else it could not be read.

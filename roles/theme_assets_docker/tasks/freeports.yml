@@ -1,0 +1,28 @@
+---
+- name: freeports | Copy free ports script to host
+  ansible.builtin.copy:
+    content: |
+      #!/usr/bin/python3
+
+      import socket
+
+      for p in range({{ theme_assets_docker_port_range.start }},{{ theme_assets_docker_port_range.end }}):
+          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+          try:
+              s.bind(("", p))
+              port = s.getsockname()[1]
+          except:
+              port = 0
+          finally:
+              s.close()
+
+          if port != 0:
+              print(p)
+    dest: /tmp/freeports.py
+    mode: "0700"
+
+- name: freeports | Generate list of free ports
+  ansible.builtin.command: python3 /tmp/freeports.py
+  register: _theme_assets_docker_freeports
+  no_log: true
+  changed_when: false
