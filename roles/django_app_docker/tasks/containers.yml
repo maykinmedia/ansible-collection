@@ -4,7 +4,7 @@
 # This should be safe since we use a lookup which renders a template, rather than
 # accepting host facts.
 
-- name: "containers | Run the cache/broker service ({{ django_app_docker_cache_image }})"
+- name: "containers | Run the cache/broker service"
   community.docker.docker_container: "{{ lookup('template', 'redis-container.yml.j2') | from_yaml }}"
 
 - name: "containers | Run the rabbitmq message broker container"

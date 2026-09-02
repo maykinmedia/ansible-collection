@@ -4,7 +4,7 @@
     docker_app_image: "{{ docker_app_image_registry }}/{{ docker_app_image_name }}:{{ docker_app_image_version }}"
   when: docker_app_image is not defined or docker_app_image == None
 
-- name: Create the application group '{{ docker_app_user }}'
+- name: Create the application group
   ansible.builtin.group:
     name: "{{ docker_app_user }}"
 

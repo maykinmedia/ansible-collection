@@ -1,7 +1,7 @@
 ---
 # Configure the environment for the app on the host machine
 
-- name: setup_env | Create the application group '{{ django_app_docker_name_prefix }}'
+- name: setup_env | Create the application group
   ansible.builtin.group:
     name: "{{ django_app_docker_app_user }}"
 
