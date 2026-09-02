@@ -5,43 +5,45 @@
 # This guards the free-port scan and container creation against parallel deploys racing on the same host port.
 # See: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1551
 #
-# There is also a check on the age of the lock. If it's older than theme_assets_docker_portlock_max_age, it is considered stale and invalid.
+# There is also a check on the age of the lock. If it's older than django_app_docker_portlock_max_age, it is considered stale and invalid.
 # A lock that's still there because the run that created it was killed before it could release it (crash, host reboot, ansible-playbook -9'd) would
 # otherwise block every future deploy forever.
 # There's no reliable way to check whether that run is still alive: Ansible creates a new process per task, so we cannot check on PID.
 # So a simple age check will have to do.
 #
-# The owner's host and pid are still recorded, just in case anyone wants to see them.
+# In the lock directory, there's an owner file containing the host and pid of whoever last ran a deployment playbook. Just in case anyone wants to see them.
+#
+# The age is based on the lock directory's own ctime rather than the "owner" file written just after it's created.
+# That's because of a problem that surfaced during testing: we used to check the ctime of the owner file, but if two runs are started
+# right after each other, it can happen that the second run checks the lock just before the owner file is created by the first run.
+# In that case the second run considers the lock invalid and breaks it.
+# This is fixed by using the ctime of the lock directory instead.
 
 - name: portlock_acquire | Get the current time on the target host
   ansible.builtin.command: date +%s
   register: _theme_assets_docker_portlock_now
   changed_when: false
 
-- name: portlock_acquire | Read the current lock owner, if any
-  ansible.builtin.slurp:
-    src: "{{ theme_assets_docker_portlock_path }}/owner"
-  register: _theme_assets_docker_portlock_owner_raw
-  ignore_errors: true
+- name: portlock_acquire | Check the lock directory itself, if any
+  ansible.builtin.stat:
+    path: "{{ theme_assets_docker_portlock_path }}"
+  register: _theme_assets_docker_portlock_stat
 
-- name: portlock_acquire | Extract the lock owner's age
+- name: portlock_acquire | Compute the lock's age
   ansible.builtin.set_fact:
-    _theme_assets_docker_portlock_owner_age: >-
-      {{ (_theme_assets_docker_portlock_now.stdout | int) -
-         (_theme_assets_docker_portlock_owner_raw.content | default('') | b64decode
-          | regex_findall('acquired_at=([0-9]+)') | first | default(0) | int) }}
+    _theme_assets_docker_portlock_age: >-
+      {{ (_theme_assets_docker_portlock_now.stdout | int) - (_theme_assets_docker_portlock_stat.stat.ctime | default(0) | int) }}
 
-# A lock is considered stale (and is broken so the acquire below can proceed
-# immediately) when its owner file is missing/unreadable, or it's simply
-# older than the configured max age. This is also a harmless no-op when
-# there's no lock at all yet.
+# A lock is considered stale when it's older than the configured max age.
+# In that case, the lock is broken.
+# This also works if there is no lock at all.
 - name: portlock_acquire | Break the lock if it looks stale
   ansible.builtin.file:
     path: "{{ theme_assets_docker_portlock_path }}"
     state: absent
   when: >-
-    (_theme_assets_docker_portlock_owner_raw is failed)
-    or (_theme_assets_docker_portlock_owner_age | default(0) | int > theme_assets_docker_portlock_max_age)
+    _theme_assets_docker_portlock_stat.stat.exists
+    and (_theme_assets_docker_portlock_age > theme_assets_docker_portlock_max_age | int)
 
 - name: portlock_acquire | Acquire port allocation lock
   ansible.builtin.command:
