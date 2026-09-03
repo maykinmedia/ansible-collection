@@ -1,5 +1,5 @@
 ---
-- name: portlock | Release port allocation lock
+- name: release | Release port allocation lock
   ansible.builtin.file:
     path: "{{ portlock_path }}"
     state: absent

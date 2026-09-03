@@ -19,17 +19,17 @@
 # In that case the second run considers the lock invalid and breaks it.
 # This is fixed by using the ctime of the lock directory instead.
 
-- name: portlock | Get the current time on the target host
+- name: acquire | Get the current time on the target host
   ansible.builtin.command: date +%s
   register: _portlock_now
   changed_when: false
 
-- name: portlock | Check the lock directory itself, if any
+- name: acquire | Check the lock directory itself, if any
   ansible.builtin.stat:
     path: "{{ portlock_path }}"
   register: _portlock_stat
 
-- name: portlock | Compute the lock's age
+- name: acquire | Compute the lock's age
   ansible.builtin.set_fact:
     _portlock_age: >-
       {{ (_portlock_now.stdout | int) - (_portlock_stat.stat.ctime | default(0) | int) }}
@@ -37,7 +37,7 @@
 # A lock is considered stale when it's older than the configured max age.
 # In that case, the lock is broken.
 # This also works if there is no lock at all.
-- name: portlock | Break the lock if it looks stale
+- name: acquire | Break the lock if it looks stale
   ansible.builtin.file:
     path: "{{ portlock_path }}"
     state: absent
@@ -45,7 +45,7 @@
     _portlock_stat.stat.exists
     and (_portlock_age > portlock_max_age | int)
 
-- name: portlock | Acquire port allocation lock
+- name: acquire | Acquire port allocation lock
   ansible.builtin.command:
     cmd: "mkdir {{ portlock_path }}"
   register: _portlock_acquire
@@ -54,7 +54,7 @@
   delay: "{{ portlock_delay }}"
   changed_when: true
 
-- name: portlock | Record lock ownership (controller host, pid and timestamp)
+- name: acquire | Record lock ownership (controller host, pid and timestamp)
   ansible.builtin.copy:
     dest: "{{ portlock_path }}/owner"
     mode: "0600"
