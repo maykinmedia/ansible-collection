@@ -73,10 +73,10 @@ Host machine interface:
 * `django_app_docker_port_range` - ports published from Docker to the host. 
   A list of free ports in this range will be generated and assiged. Make sure
   enough ports are available in the given range. Defaults to `14000-15000`.
-* `django_app_docker_portlock_path` - path to a lock directory used to serialize free-port
-  allocation across concurrent `ansible-playbook` runs targeting the same host. Only held
-  while allocating a port for a *new* container; redeploys of existing containers reuse
-  their current port and never contend for it. Defaults to `/tmp/django_app_docker_portalloc.lock`.
+* Free-port allocation for a *new* container is serialized against every other
+  port-allocating role/playbook on the same host, via a lock directory at
+  `/tmp/portalloc.lock` (see the shared `portlock` role). Redeploys of existing
+  containers reuse their current port and never contend for the lock. 
 * `django_app_docker_portlock_retries` and `django_app_docker_portlock_delay` - how many
   times, and how many seconds apart, to retry acquiring the port allocation lock before
   giving up. Defaults to 60 retries, 5 seconds apart (5 minutes total).

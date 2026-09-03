@@ -1,11 +1,11 @@
 ---
-# This playbook creates a lock simply by creating a certain directory on the host.
+# This creates a lock simply by creating a certain directory on the host.
 # If the directory exists, a concurrent run is blocked from selecting a free port.
 #
-# This guards the free-port scan and container creation against parallel deploys racing on the same host port.
+# This guards a free-port scan and container creation against parallel deploys racing on the same host port.
 # See: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1551
 #
-# There is also a check on the age of the lock. If it's older than django_app_docker_portlock_max_age, it is considered stale and invalid.
+# There is also a check on the age of the lock. If it's older than portlock_max_age, it is considered stale and invalid.
 # A lock that's still there because the run that created it was killed before it could release it (crash, host reboot, ansible-playbook -9'd) would
 # otherwise block every future deploy forever.
 # There's no reliable way to check whether that run is still alive: Ansible creates a new process per task, so we cannot check on PID.
@@ -19,46 +19,46 @@
 # In that case the second run considers the lock invalid and breaks it.
 # This is fixed by using the ctime of the lock directory instead.
 
-- name: portlock_acquire | Get the current time on the target host
+- name: portlock | Get the current time on the target host
   ansible.builtin.command: date +%s
-  register: _theme_assets_docker_portlock_now
+  register: _portlock_now
   changed_when: false
 
-- name: portlock_acquire | Check the lock directory itself, if any
+- name: portlock | Check the lock directory itself, if any
   ansible.builtin.stat:
-    path: "{{ theme_assets_docker_portlock_path }}"
-  register: _theme_assets_docker_portlock_stat
+    path: "{{ portlock_path }}"
+  register: _portlock_stat
 
-- name: portlock_acquire | Compute the lock's age
+- name: portlock | Compute the lock's age
   ansible.builtin.set_fact:
-    _theme_assets_docker_portlock_age: >-
-      {{ (_theme_assets_docker_portlock_now.stdout | int) - (_theme_assets_docker_portlock_stat.stat.ctime | default(0) | int) }}
+    _portlock_age: >-
+      {{ (_portlock_now.stdout | int) - (_portlock_stat.stat.ctime | default(0) | int) }}
 
 # A lock is considered stale when it's older than the configured max age.
 # In that case, the lock is broken.
 # This also works if there is no lock at all.
-- name: portlock_acquire | Break the lock if it looks stale
+- name: portlock | Break the lock if it looks stale
   ansible.builtin.file:
-    path: "{{ theme_assets_docker_portlock_path }}"
+    path: "{{ portlock_path }}"
     state: absent
   when: >-
-    _theme_assets_docker_portlock_stat.stat.exists
-    and (_theme_assets_docker_portlock_age > theme_assets_docker_portlock_max_age | int)
+    _portlock_stat.stat.exists
+    and (_portlock_age > portlock_max_age | int)
 
-- name: portlock_acquire | Acquire port allocation lock
+- name: portlock | Acquire port allocation lock
   ansible.builtin.command:
-    cmd: "mkdir {{ theme_assets_docker_portlock_path }}"
-  register: _theme_assets_docker_portlock_acquire
-  until: _theme_assets_docker_portlock_acquire is succeeded
-  retries: "{{ theme_assets_docker_portlock_retries }}"
-  delay: "{{ theme_assets_docker_portlock_delay }}"
+    cmd: "mkdir {{ portlock_path }}"
+  register: _portlock_acquire
+  until: _portlock_acquire is succeeded
+  retries: "{{ portlock_retries }}"
+  delay: "{{ portlock_delay }}"
   changed_when: true
 
-- name: portlock_acquire | Record lock ownership (controller host, pid and timestamp)
+- name: portlock | Record lock ownership (controller host, pid and timestamp)
   ansible.builtin.copy:
-    dest: "{{ theme_assets_docker_portlock_path }}/owner"
+    dest: "{{ portlock_path }}/owner"
     mode: "0600"
     content: |
       host={{ lookup('pipe', 'hostname') }}
       pid={{ lookup('pipe', 'echo $PPID') }}
-      acquired_at={{ _theme_assets_docker_portlock_now.stdout }}
+      acquired_at={{ _portlock_now.stdout }}

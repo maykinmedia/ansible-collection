@@ -35,7 +35,13 @@
 - name: "containers | Allocate ports and run the django backend containers"
   block:
     - name: containers | Acquire port allocation lock
-      ansible.builtin.import_tasks: portlock_acquire.yml
+      ansible.builtin.import_role:
+        name: portlock
+        tasks_from: acquire
+      vars:
+        portlock_retries: "{{ django_app_docker_portlock_retries }}"
+        portlock_delay: "{{ django_app_docker_portlock_delay }}"
+        portlock_max_age: "{{ django_app_docker_portlock_max_age }}"
       when: _django_app_docker_needs_new_ports
 
     - name: containers | Get target machine free ports
@@ -55,7 +61,9 @@
       register: backend_ports
   always:
     - name: containers | Release port allocation lock
-      ansible.builtin.import_tasks: portlock_release.yml
+      ansible.builtin.import_role:
+        name: portlock
+        tasks_from: release
       when: _django_app_docker_needs_new_ports
 
 - name: "containers | Get the port of the first replica before flower overwrites it"
@@ -94,7 +102,13 @@
 - name: "containers | Allocate a port and run the celery flower container"
   block:
     - name: containers | Acquire port allocation lock
-      ansible.builtin.import_tasks: portlock_acquire.yml
+      ansible.builtin.import_role:
+        name: portlock
+        tasks_from: acquire
+      vars:
+        portlock_retries: "{{ django_app_docker_portlock_retries }}"
+        portlock_delay: "{{ django_app_docker_portlock_delay }}"
+        portlock_max_age: "{{ django_app_docker_portlock_max_age }}"
       when: _django_app_docker_flower_needs_new_port
 
     - name: "containers | When no flower container found, recheck free ports"
@@ -107,5 +121,7 @@
       register: flower_ports
   always:
     - name: containers | Release port allocation lock
-      ansible.builtin.import_tasks: portlock_release.yml
+      ansible.builtin.import_role:
+        name: portlock
+        tasks_from: release
       when: _django_app_docker_flower_needs_new_port

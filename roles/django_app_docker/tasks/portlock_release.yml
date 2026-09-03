@@ -1,5 +1,0 @@
----
-- name: portlock_release | Release port allocation lock
-  ansible.builtin.file:
-    path: "{{ django_app_docker_portlock_path }}"
-    state: absent

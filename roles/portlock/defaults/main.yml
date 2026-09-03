@@ -1,0 +1,10 @@
+---
+# Path to the lock directory. This should not be overridden. Instead, it should be the same for EVERYONE using this portlock role.
+portlock_path: /tmp/portalloc.lock
+
+# How many times to retry acquiring the lock, and how long to wait (in seconds) between retries, before giving up.
+portlock_retries: 60
+portlock_delay: 5
+
+# A held lock older than this (in seconds) is considered abandoned by a crashed run and is broken automatically instead of blocking deploys forever.
+portlock_max_age: 1800

@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Maykin Media
+  description: Deploy static theme assets as Docker containers
+  company: Maykin Media
+
+  license: EUPL-1.2
+
+  min_ansible_version: "2.9"
+
+  galaxy_tags:
+    - docker
+    - commonground
+
+dependencies: []
+
+# Lets this role's tasks reference the portlock role (and any other content from this
+# collection) by its short name, regardless of whether the calling playbook itself
+# declares a `collections:` list.
+collections:
+  - maykinmedia.commonground
