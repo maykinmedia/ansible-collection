@@ -3,8 +3,10 @@
 ## 2.5.1
 
 - [`Taiga #1551`][#1551] Improvements to the portlock mechanism.
+- [`Taiga #1568`][#1568] Removed ansible variables from task names in django\_app\_docker and docker\_app roles.
 
 [#1551]: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1551
+[#1568]: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1568
 
 ## 2.5.0 (2026-09-01)
 
