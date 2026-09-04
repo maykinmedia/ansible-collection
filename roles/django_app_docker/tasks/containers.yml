@@ -5,14 +5,14 @@
 # accepting host facts.
 
 - name: "containers | Run the cache/broker service ({{ django_app_docker_cache_image }})"
-  community.docker.docker_container: "{{ lookup('template', 'redis-container.yml.j2') | from_yaml }}"
+  community.docker.docker_container: "{{ lookup('template', 'redis-container.yml.j2') | from_yaml }}" # noqa: args[module]
 
 - name: "containers | Run the rabbitmq message broker container"
-  community.docker.docker_container: "{{ lookup('template', 'rabbitmq-container.yml.j2') | from_yaml }}"
+  community.docker.docker_container: "{{ lookup('template', 'rabbitmq-container.yml.j2') | from_yaml }}" # noqa: args[module]
   when: django_app_docker_use_rabbitmq
 
 - name: "containers | Run the elasticsearch container"
-  community.docker.docker_container: "{{ lookup('template', 'elasticsearch-container.yml.j2') | from_yaml }}"
+  community.docker.docker_container: "{{ lookup('template', 'elasticsearch-container.yml.j2') | from_yaml }}" # noqa: args[module]
   when: django_app_docker_use_elasticsearch
 
 - name: "containers | Check if django containers already exists and register port"
@@ -53,7 +53,7 @@
         _django_app_docker_replicas: "{{ lookup('template', 'replicas.yml.j2') | from_yaml }}"
 
     - name: "containers | Run the django backend containers"
-      community.docker.docker_container: "{{ lookup('template', 'django-container.yml.j2') | from_yaml }}"
+      community.docker.docker_container: "{{ lookup('template', 'django-container.yml.j2') | from_yaml }}" # noqa: args[module]
       loop: "{{ _django_app_docker_replicas }}"
       loop_control:
         loop_var: django_app_docker_replica
@@ -76,18 +76,18 @@
   when: django_app_docker_use_celery
 
 - name: "containers | Run the celery worker containers"
-  community.docker.docker_container: "{{ lookup('template', 'celery-worker-container.yml.j2') | from_yaml }}"
+  community.docker.docker_container: "{{ lookup('template', 'celery-worker-container.yml.j2') | from_yaml }}" # noqa: args[module]
   loop: "{{ _django_app_docker_celery_worker_replicas }}"
   loop_control:
     loop_var: django_app_docker_celery_replica
   when: django_app_docker_use_celery
 
 - name: "containers | Run the celery monitor container"
-  community.docker.docker_container: "{{ lookup('template', 'celery-monitor-container.yml.j2') | from_yaml }}"
+  community.docker.docker_container: "{{ lookup('template', 'celery-monitor-container.yml.j2') | from_yaml }}" # noqa: args[module]
   when: django_app_docker_use_celery_monitor
 
 - name: "containers | Run the celery beat container"
-  community.docker.docker_container: "{{ lookup('template', 'celery-beat-container.yml.j2') | from_yaml }}"
+  community.docker.docker_container: "{{ lookup('template', 'celery-beat-container.yml.j2') | from_yaml }}" # noqa: args[module]
   when: django_app_docker_use_celery_beat
 
 - name: "containers | Check if flower containers already exists and register port if exists"
@@ -116,7 +116,7 @@
       when: _django_app_docker_flower_needs_new_port
 
     - name: "containers | Run the celery flower container"
-      community.docker.docker_container: "{{ lookup('template', 'celery-flower-container.yml.j2') | from_yaml }}"
+      community.docker.docker_container: "{{ lookup('template', 'celery-flower-container.yml.j2') | from_yaml }}" # noqa: args[module]
       when: django_app_docker_use_flower
       register: flower_ports
   always:
