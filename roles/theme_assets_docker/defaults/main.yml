@@ -16,7 +16,7 @@ theme_assets_docker_name_prefix: theme
 #######################################
 
 theme_assets_docker_image_registry: docker.io # use Docker Hub by default
-theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix}}"
+theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix }}"
 theme_assets_docker_versions:
   - latest
 
