@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Maykin Media
+  description: >-
+    Internal helper role providing a host-level lock directory, used to serialize
+    free-port allocation across concurrent ansible-playbook runs. Not meant to be
+    applied directly; other roles pull in its tasks via import_role/include_role
+    with tasks_from: acquire / tasks_from: release.
+  company: Maykin Media
+
+  license: EUPL-1.2
+
+  min_ansible_version: "2.9"
+
+  galaxy_tags:
+    - commonground
+
+dependencies: []

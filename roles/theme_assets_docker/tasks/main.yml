@@ -29,7 +29,13 @@
 - name: Allocate ports and run the app containers
   block:
     - name: Acquire port allocation lock
-      ansible.builtin.import_tasks: portlock_acquire.yml
+      ansible.builtin.import_role:
+        name: portlock
+        tasks_from: acquire
+      vars:
+        portlock_retries: "{{ theme_assets_docker_portlock_retries }}"
+        portlock_delay: "{{ theme_assets_docker_portlock_delay }}"
+        portlock_max_age: "{{ theme_assets_docker_portlock_max_age }}"
       when: _theme_assets_docker_needs_new_ports
 
     - name: Get target machine free ports
@@ -79,5 +85,7 @@
       register: backend_ports
   always:
     - name: Release port allocation lock
-      ansible.builtin.import_tasks: portlock_release.yml
+      ansible.builtin.import_role:
+        name: portlock
+        tasks_from: release
       when: _theme_assets_docker_needs_new_ports

@@ -16,7 +16,7 @@ theme_assets_docker_name_prefix: theme
 #######################################
 
 theme_assets_docker_image_registry: docker.io # use Docker Hub by default
-theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix}}"
+theme_assets_docker_image_name: "maykinmedia/{{ theme_assets_docker_name_prefix }}"
 theme_assets_docker_versions:
   - latest
 
@@ -37,10 +37,6 @@ theme_assets_docker_port_range:
   start: 11000
   end: 12000
 
-# Path to a lock directory used to serialize free-port allocation across concurrent
-# ansible-playbook runs targeting the same host, so parallel deploys can't select
-# the same free port for two different new containers.
-theme_assets_docker_portlock_path: /tmp/theme_assets_docker_portalloc.lock
 # How many times to retry acquiring the port allocation lock, and how long to wait
 # (in seconds) between retries, before giving up.
 theme_assets_docker_portlock_retries: 60

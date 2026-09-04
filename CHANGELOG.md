@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.1
+
+- [`Taiga #1551`][#1551] Improvements to the portlock mechanism.
+- [`Taiga #1568`][#1568] Removed ansible variables from task names in django\_app\_docker and docker\_app roles.
+
+[#1551]: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1551
+[#1568]: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1568
+
 ## 2.5.0 (2026-09-01)
 
 - [`Taiga #1551`][#1551] Added a fix for the free host-port allocation on concurrent uses of the `django_app_docker` and `theme_assets_docker` roles issue. That is: the creation of a lock file on the server, forcing concurrent runs to be executed one after the other, so they can no longer select the same port for two different new containers. To avoid an eternal lock file after a crash, we check for its age. If it is older than 30 minutes, it is considered stale and deleted, so we never get stuck.
