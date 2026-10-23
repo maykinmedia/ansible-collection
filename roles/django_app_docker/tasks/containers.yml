@@ -28,7 +28,10 @@
 # port on every start, so the port drifts away from the nginx upstream after a restart.
 - name: "containers | Get the current host port of each django replica"
   ansible.builtin.set_fact:
-    _django_app_docker_current_ports: "{{ _django_app_docker_container_info.results | map(attribute='container.HostConfig.PortBindings.8000/tcp.0.HostPort', default='') | list }}"
+    _django_app_docker_current_ports: >-
+      {{ _django_app_docker_container_info.results
+      | map(attribute='container.HostConfig.PortBindings.8000/tcp.0.HostPort', default='')
+      | list }}
 
 - name: "containers | Warn about django replicas without a fixed host port"
   ansible.builtin.debug:
@@ -118,7 +121,9 @@
 # Empty when the flower container doesn't exist or has no fixed host port
 - name: "containers | Get the current host port of the flower container"
   ansible.builtin.set_fact:
-    _django_app_docker_flower_current_port: "{{ _django_app_docker_container_info_flower.container.HostConfig.PortBindings['5555/tcp'][0].HostPort | default('') }}"
+    _django_app_docker_flower_current_port: >-
+      {{ _django_app_docker_container_info_flower.container.HostConfig.PortBindings['5555/tcp'][0].HostPort
+      | default('') }}
 
 - name: "containers | Warn about a flower container without a fixed host port"
   ansible.builtin.debug:

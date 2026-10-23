@@ -22,7 +22,10 @@
 # port on every start, so the port drifts away from the nginx upstream after a restart.
 - name: Get the current host port of each version
   ansible.builtin.set_fact:
-    _theme_assets_docker_current_ports: "{{ _theme_assets_docker_container_info.results | map(attribute='container.HostConfig.PortBindings.8080/tcp.0.HostPort', default='') | list }}"
+    _theme_assets_docker_current_ports: >-
+      {{ _theme_assets_docker_container_info.results
+      | map(attribute='container.HostConfig.PortBindings.8080/tcp.0.HostPort', default='')
+      | list }}
 
 - name: Warn about containers without a fixed host port
   ansible.builtin.debug:
