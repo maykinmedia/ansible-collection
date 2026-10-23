@@ -9,6 +9,9 @@ Host machine interface:
   port-allocating role/playbook on the same host, via a lock directory at
   `/tmp/portalloc.lock` (see the shared `portlock` role). Redeploys of existing
   containers reuse their current port and never contend for the lock. 
+* An existing container without a fixed host port (an empty `HostPort`, so docker picks
+  a random port on every start) is treated as a new container: it gets a newly
+  allocated port and is recreated, and a warning is shown.
 * `theme_assets_docker_portlock_retries` and `theme_assets_docker_portlock_delay` - how
   many times, and how many seconds apart, to retry acquiring the port allocation lock
   before giving up. Defaults to 60 retries, 5 seconds apart (5 minutes total).

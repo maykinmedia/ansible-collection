@@ -23,12 +23,32 @@
     loop_var: django_app_docker_counter
   register: _django_app_docker_container_info
 
+# An empty string means the replica needs a new port: either the container doesn't
+# exist, or it has no fixed host port. In the latter case docker assigns a random
+# port on every start, so the port drifts away from the nginx upstream after a restart.
+- name: "containers | Get the current host port of each django replica"
+  ansible.builtin.set_fact:
+    _django_app_docker_current_ports: "{{ _django_app_docker_container_info.results | map(attribute='container.HostConfig.PortBindings.8000/tcp.0.HostPort', default='') | list }}"
+
+- name: "containers | Warn about django replicas without a fixed host port"
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: {{ django_app_docker_name_prefix }}-{{ django_app_docker_counter }} has no fixed host port.
+      It will be recreated with a newly allocated port.
+  loop: "{{ range(django_app_docker_replicas) | list }}"
+  loop_control:
+    loop_var: django_app_docker_counter
+  when:
+    - _django_app_docker_container_info.results[django_app_docker_counter].exists
+    - not _django_app_docker_current_ports[django_app_docker_counter]
+
 - name: "containers | Determine whether any django replica needs a newly allocated port"
   ansible.builtin.set_fact:
-    _django_app_docker_needs_new_ports: "{{ _django_app_docker_container_info.results | selectattr('exists', 'equalto', false) | list | length > 0 }}"
+    _django_app_docker_needs_new_ports: "{{ '' in _django_app_docker_current_ports }}"
 
 # The port allocation lock is only acquired/held around the free-port scan and the
-# container creation below, and only when at least one replica doesn't exist yet.
+# container creation below, and only when at least one replica doesn't exist yet
+# or has no fixed host port.
 # Redeploys of already-existing replicas reuse their current port (see
 # replicas.yml.j2) and never contend for the lock. The lock is released in
 # `always` so a failed container creation can't leave it stuck.
@@ -95,9 +115,24 @@
     name: "{{ django_app_docker_name_prefix }}-flower"
   register: _django_app_docker_container_info_flower
 
+# Empty when the flower container doesn't exist or has no fixed host port
+- name: "containers | Get the current host port of the flower container"
+  ansible.builtin.set_fact:
+    _django_app_docker_flower_current_port: "{{ _django_app_docker_container_info_flower.container.HostConfig.PortBindings['5555/tcp'][0].HostPort | default('') }}"
+
+- name: "containers | Warn about a flower container without a fixed host port"
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: {{ django_app_docker_name_prefix }}-flower has no fixed host port.
+      It will be recreated with a newly allocated port.
+  when:
+    - django_app_docker_use_flower
+    - _django_app_docker_container_info_flower.exists
+    - not _django_app_docker_flower_current_port
+
 - name: "containers | Determine whether the flower container needs a newly allocated port"
   ansible.builtin.set_fact:
-    _django_app_docker_flower_needs_new_port: "{{ django_app_docker_use_flower and not _django_app_docker_container_info_flower.exists }}"
+    _django_app_docker_flower_needs_new_port: "{{ django_app_docker_use_flower and not _django_app_docker_flower_current_port }}"
 
 - name: "containers | Allocate a port and run the celery flower container"
   block:
