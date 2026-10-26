@@ -1,8 +1,8 @@
 ---
 {% for version in theme_assets_docker_versions %}
 {% set index = loop.index0 %}
-{% if _theme_assets_docker_container_info.results[index].exists %}
-- "{{ _theme_assets_docker_container_info.results[index].container.HostConfig.PortBindings['8080/tcp'][0].HostPort }}"
+{% if _theme_assets_docker_current_ports[index] %}
+- "{{ _theme_assets_docker_current_ports[index] }}"
 {% else %}
 - "{{ _theme_assets_docker_freeports.stdout_lines[index] }}"
 {% endif %}

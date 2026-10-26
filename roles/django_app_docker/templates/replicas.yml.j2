@@ -1,8 +1,8 @@
 ---
 {% for n in range(django_app_docker_replicas) %}
 - name: {{ django_app_docker_name_prefix }}-{{ n }}
-{% if _django_app_docker_container_info.results[n].exists %}
-  port: {{ _django_app_docker_container_info.results[n].container.HostConfig.PortBindings['8000/tcp'][0].HostPort }}
+{% if _django_app_docker_current_ports[n] %}
+  port: {{ _django_app_docker_current_ports[n] }}
 {% else %}
   port: {{ _django_app_docker_freeports.stdout_lines[n] }}
 {% endif %}  

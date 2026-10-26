@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.2
+
+- [`Taiga #1750`][#1750] `django_app_docker` (web replicas and flower) and `theme_assets_docker` now give an existing
+  container without a fixed host port a newly allocated port, instead of copying the empty port to every redeploy.
+  Without a fixed port docker picks a random port on every start, so after a restart nginx pointed to the wrong port.
+
+[#1750]: https://taiga.maykinmedia.nl/project/maykin-intranet/issue/1750
+
 ## 2.5.1
 
 - [`Taiga #1551`][#1551] Improvements to the portlock mechanism.

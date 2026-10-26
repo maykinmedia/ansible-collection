@@ -17,12 +17,35 @@
   loop: "{{ theme_assets_docker_versions | mandatory }}"
   register: _theme_assets_docker_container_info
 
+# An empty string means the version needs a new port: either the container doesn't
+# exist, or it has no fixed host port. In the latter case docker assigns a random
+# port on every start, so the port drifts away from the nginx upstream after a restart.
+- name: Get the current host port of each version
+  ansible.builtin.set_fact:
+    _theme_assets_docker_current_ports: >-
+      {{ _theme_assets_docker_container_info.results
+      | map(attribute='container.HostConfig.PortBindings.8080/tcp.0.HostPort', default='')
+      | list }}
+
+- name: Warn about containers without a fixed host port
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: {{ theme_assets_docker_name_prefix }}-{{ item }} has no fixed host port.
+      It will be recreated with a newly allocated port.
+  loop: "{{ theme_assets_docker_versions }}"
+  loop_control:
+    index_var: index
+  when:
+    - _theme_assets_docker_container_info.results[index].exists
+    - not _theme_assets_docker_current_ports[index]
+
 - name: Determine whether any version needs a newly allocated port
   ansible.builtin.set_fact:
-    _theme_assets_docker_needs_new_ports: "{{ _theme_assets_docker_container_info.results | selectattr('exists', 'equalto', false) | list | length > 0 }}"
+    _theme_assets_docker_needs_new_ports: "{{ '' in _theme_assets_docker_current_ports }}"
 
 # The port allocation lock is only acquired/held around the free-port scan and the
-# container creation below, and only when at least one version doesn't exist yet.
+# container creation below, and only when at least one version doesn't exist yet
+# or has no fixed host port.
 # Redeploys of already-existing versions reuse their current port (see
 # ports.yml.j2) and never contend for the lock. The lock is released in `always`
 # so a failed container creation can't leave it stuck.
